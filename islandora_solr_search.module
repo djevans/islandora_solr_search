@@ -72,7 +72,7 @@ function islandora_solr_admin_settings() {
       '#type' => 'textarea',
       '#title' => t('The fields to use for facets'),
       // '#size' => 75,
-      '#description' => t('a space separated list of fields to use as facets'),
+      '#description' => t('a comma-separated list of fields to use as facets'),
       '#default_value' => variable_get('islandora_solr_search_block_facets', t('dc.subject dc.type')),
   );
   $form['islandora_solr_search_block_host'] = array(
