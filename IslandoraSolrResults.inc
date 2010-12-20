@@ -33,12 +33,15 @@ class IslandoraSolrResults {
     $facetlimit = variable_get('islandora_solr_search_block_facet_limit','12');
     $facetMinCount = variable_get('islandora_solr_search_block_facet_min_count','2');
     $requestHandler = variable_get("islandora_solr_search_block_request_handler",t("standard"));
+    $debugQuery = (variable_get('islandora_solr_search_debug_mode', 0) ? "true" : null );//any val incl. 'false' is treated as true by Solr
     $additionalParams = array(
             'facet' => 'true',
             'facet.mincount' => $facetMinCount,
             'facet.limit' => $facetlimit,
             'qt' => $requestHandler,
             'facet.field' => explode(',',variable_get("islandora_solr_search_block_facets",'dc.subject,dc.type')),//comma separated list configured in the block config
+            'debugQuery' => $debugQuery,//debug
+            'indent' => $debugQuery,//debug
     );
     global $islandora_fq;
     if($fq != NULL && $fq != '-') {
@@ -240,10 +243,11 @@ class IslandoraSolrResults {
     return $resArr;
   }
  //copied from apache solr service and added space as a value to escape.  We are using this to escape the field being searched not the text being searched for so we need both.
-public function escape($value)
+  public function lesser_escape($value)
 	{
 		//list taken from http://lucene.apache.org/java/docs/queryparsersyntax.html#Escaping%20Special%20Characters
-		$pattern = '/(\+|-|&&|\|\||!|\(|\)|\{|}|\[|]|\^|"|~|\*|\?|:| |\\\)/';
+		//Zac removed the quotation mark and whitespace from this list.
+		$pattern = '/(\+|-|&&|\|\||!|\(|\)|\{|}|\[|]|\^|~|\*|\?|:|\\\)/';
 		$replace = '\\\$1';
 
 		return preg_replace($pattern, $replace, $value);
@@ -254,7 +258,7 @@ public function escape($value)
     $returnFacets = array();
     foreach ($facets as $facet){
       $tmp = substr($facet,0,strpos($facet,':"'));
-      $tmp = $this->escape(trim($tmp));
+      $tmp = $this->lesser_escape(trim($tmp));
       $returnFacets[] = $tmp . substr($facet,strpos($facet,':"'),strlen($facet));
     }
     return $returnFacets;
