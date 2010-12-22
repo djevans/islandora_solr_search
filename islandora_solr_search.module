@@ -236,7 +236,7 @@ function islandora_solr_simple_search_form() {
 
 function islandora_solr_simple_search_form_validate($form, &$form_state) {
   if ($form_state['values']['islandora_simple_search_query'] == '') {
-    form_set_error('search_query', t('The Search field cannot be empty.'));
+    form_set_error('islandora_simple_search_query', t('The Search field cannot be empty.'));
   }
 }
 
