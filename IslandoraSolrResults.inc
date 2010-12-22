@@ -253,16 +253,16 @@ class IslandoraSolrResults {
   }
  //copied from apache solr service and added space as a value to escape.  We are using this to escape the field being searched not the text being searched for so we need both.
   public function lesser_escape($value)
-	{
-		//list taken from http://lucene.apache.org/java/docs/queryparsersyntax.html#Escaping%20Special%20Characters
-		// Zac removed the quotation mark and whitespace from this list.
-		// a) Spaces in our search strings don't need escaping
-		// b) We want to allow users to use quotation marks to indicate multi-word phrases
-		$pattern = '/(\+|-|&&|\|\||!|\(|\)|\{|}|\[|]|\^|~|\*|\?|:|\\\)/';
-		$replace = '\\\$1';
+  {
+    //list taken from http://lucene.apache.org/java/docs/queryparsersyntax.html#Escaping%20Special%20Characters
+    // Zac removed the quotation mark and whitespace from this list.
+    // a) Spaces in our search strings don't need escaping
+    // b) We want to allow users to use quotation marks to indicate multi-word phrases
+    $pattern = '/(\+|-|&&|\|\||!|\(|\)|\{|}|\[|]|\^|~|\*|\?|:|\\\)/';
+    $replace = '\\\$1';
 
-		return preg_replace($pattern, $replace, $value);
-	}
+    return preg_replace($pattern, $replace, $value);
+  }
 
  //escape characters in field names of facets
   function solr_escape($facets){
