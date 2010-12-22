@@ -144,6 +144,13 @@ function islandora_solr_admin_settings() {
       '#description' => t('This param indicates the number of results to show per page. '),
       '#default_value' => variable_get('islandora_solr_search_num_of_results', '20'),
   );
+  $form['islandora_solr_search_debug_mode'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Debug Mode?'),
+      '#return_value' => 1,
+      '#default_value' => variable_get('islandora_solr_search_debug_mode', 0),
+      '#description' => t('This param determines whether a bunch of solr query info should be dumped to screen.'),
+  );
 
 
 
