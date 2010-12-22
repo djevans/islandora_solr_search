@@ -162,8 +162,9 @@ class IslandoraSolrResults {
     if( strlen( trim( $islandora_solrQuery ) ) ) { 
       $output .= '<div class="islandora_solr_search_search_wrap">';
       $output .= '<div class="islandora_solr_search_facet_title">'.t('Base Query').':</div>';
-      $output .= '<div class="islandora_solr_search_facet_value_enabled">'.$islandora_solrQuery;
-      $output .= ' <a href="'.$base_url.'/islandora/solr/search/'.htmlspecialchars(drupal_urlencode(" "),ENT_QUOTES,'utf-8',false).'/'.($startPage+1).'/'.htmlspecialchars($islandora_fq,ENT_QUOTES,'utf-8',false).'/dismax"><img class="islandora_solr_add_remove_link" src="/'.drupal_get_path('module', 'islandora_solr_search').'/images/delete.png" alt="Remove search term"></a>';
+      $output .= '<div class="islandora_solr_search_facet_value_enabled">';
+      $output .= '<a href="'.$base_url.'/islandora/solr/search/'.htmlspecialchars(drupal_urlencode(" "),ENT_QUOTES,'utf-8',false).'/'.($startPage+1).'/'.htmlspecialchars($islandora_fq,ENT_QUOTES,'utf-8',false).'/dismax"><img class="islandora_solr_add_remove_link" src="/'.drupal_get_path('module', 'islandora_solr_search').'/images/delete.png" alt="Remove search term"></a> ';
+      $output .= $islandora_solrQuery;
       $output .= '</div>'; // 'islandora_solr_search_facet_value_enabled'
       $output .= '</div>'; // 'islandora_solr_search_search_wrap'
     }
@@ -195,8 +196,10 @@ class IslandoraSolrResults {
             $filter_query = '-';
           }
           if($disable_link) {//create a link to remove this facet as it has already been chosen
-            $filter_output .= '<li><div>'.$key.' = '.$name ; //no href here
-            $filter_output .= ' <a href="'.$base_url.'/islandora/solr/search/'.htmlspecialchars(drupal_urlencode($islandora_solrQuery),ENT_QUOTES,'utf-8',false).'/1/'.$filter_query.'/'.$islandora_defType.'"/><img class="islandora_solr_add_remove_link" src="/'.drupal_get_path('module', 'islandora_solr_search').'/images/delete.png" alt="Remove this filter"></a> ';
+            $filter_output .= '<li><div>';
+            $filter_output .= '<a href="'.$base_url.'/islandora/solr/search/'.htmlspecialchars(drupal_urlencode($islandora_solrQuery),ENT_QUOTES,'utf-8',false).'/1/'.$filter_query.'/'.$islandora_defType.'"/><img class="islandora_solr_add_remove_link" src="/'.drupal_get_path('module', 'islandora_solr_search').'/images/delete.png" alt="Remove this filter"></a> ';
+            $filter_output .= $key.' = '.$name ; //no href here #mod zac
+            //$filter_output .= ucwords(str_replace("_"," ",$key)).' = '.$name ; //this version would replace underscore with whitespace, and capitalize first letters of words
             $filter_output .= "</div></li>";
           } else {//normal link
             $normal_facet_output .= '<li><div><a href="'.$base_url.'/islandora/solr/search/'.htmlspecialchars(drupal_urlencode($islandora_solrQuery),ENT_QUOTES,'utf-8',false).'/1/'.$filter_query.'/'.$islandora_defType.'"/>'.$name.'</a> ('.$number.')</div></li>';
@@ -206,6 +209,7 @@ class IslandoraSolrResults {
         if( $facet_count >=2 ) {
           $facet_output .='<div class="islandora_solr_search_facet_wrap">';
           $facet_output .='<div class="islandora_solr_search_facet_name">'. htmlspecialchars($key, ENT_QUOTES, 'utf-8').'</div>';
+          //$facet_output .='<div class="islandora_solr_search_facet_name">'. htmlspecialchars(ucwords(str_replace("_"," ",$key)), ENT_QUOTES, 'utf-8').'</div>';
           $facet_output .='<ul>';
           $facet_output .= $normal_facet_output;
           $facet_output .='</ul>';
