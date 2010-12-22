@@ -217,7 +217,12 @@ class IslandoraSolrResults {
         }
       }
     }
+    // as we add additional facets, we're repeatedly URL-encoding old facet 
+    // strings. when we double-encode quotation marks they're incomprehensible to solr.
+    // This is a quick workaround:
+    $facet_output = str_replace('%2B','%252B',$facet_output);
     if(!empty($filter_output)) {
+      $filter_output = str_replace('%2B','%252B',$filter_output);
       $output .= '<div class="islandora_solr_search_search_wrap">';
       $output .= '<div class="islandora_solr_search_facet_title">'.t('Enabled Filters').':</div>';
       $output .= '<div class="islandora_solr_search_enabled_filters"><ul class="filter_list">'.$filter_output.'</ul></div>';
@@ -250,7 +255,9 @@ class IslandoraSolrResults {
   public function lesser_escape($value)
 	{
 		//list taken from http://lucene.apache.org/java/docs/queryparsersyntax.html#Escaping%20Special%20Characters
-		//Zac removed the quotation mark and whitespace from this list.
+		// Zac removed the quotation mark and whitespace from this list.
+		// a) Spaces in our search strings don't need escaping
+		// b) We want to allow users to use quotation marks to indicate multi-word phrases
 		$pattern = '/(\+|-|&&|\|\||!|\(|\)|\{|}|\[|]|\^|~|\*|\?|:|\\\)/';
 		$replace = '\\\$1';
 
