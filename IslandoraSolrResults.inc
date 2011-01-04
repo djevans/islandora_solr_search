@@ -281,12 +281,19 @@ class IslandoraSolrResults {
     $types = $this->get_search_terms_array(NULL,'solrSearchTerms.xml');
     $queryArray=NULL;
     if (isset($query)) {
-      $queryArray = explode('AND', $query);
+      $queryArray = preg_split( '/( OR | AND )/', $query, 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+      foreach( $queryArray as $key => $val ) {
+        if ( $val === ' OR ' || $val === ' AND ' ) {
+          $andOrs[] = trim($val); // that is, just 'OR' or 'AND'
+          unset($queryArray[$key]); //remove that from the array
+        }
+      }
+      $queryArray = array_values($queryArray);
     }
 
     $andOrArray = array(
             'AND' => 'and',
-            //'OR' => 'or' //removed or for now as it would be a pain to parse
+            'OR' => 'or',
     );
     $form = array();
 
@@ -294,7 +301,6 @@ class IslandoraSolrResults {
       $repeat = variable_get('islandora_solr_search_block_repeat',  t('3'));
     }
     $var0 = explode(':', $queryArray[0]);
-    $var1 = explode(':', $queryArray[1]);
     $form['search_type']['type1'] = array(
             '#title' => t(''),
             '#type' => 'select',
@@ -306,34 +312,18 @@ class IslandoraSolrResults {
             '#type' => 'textfield',
             '#title' => t(''),
             '#required' => TRUE,
-            '#default_value' => (count($var0) >= 2 ? trim($var0[1]) : ''),
+            '#default_value' => (count($var0) >= 2 ? trim($var0[1],'()') : ''),
     );
-    $form['andor1'] = array(
-            '#title' => t(''),
-            '#type' => 'select',
-            '#default_value' =>  'AND',
-            '#options' => $andOrArray
-    );
-    $form['search_type']['type2'] = array(
-            '#title' => t(''),
-            '#type' => 'select',
-            '#options' => $types,
-            '#default_value' => (count($var1) >= 2 ? trim($var1[0]) : ''),
-    );
-    $form['fedora_terms2'] = array(
-            '#size' => '24',
-            '#type' => 'textfield',
-            '#title' => t(''),
-            '#default_value' => (count($var1) >= 2 ? $var1[1] : ''),
-    );
-    if ($repeat>2 && $repeat < 9) { //don't want less then 2 or more then 9
-      for ($i = 3; $i < $repeat + 1; $i++) {
+    if ($repeat>1 && $repeat < 9) { //don't want less then 2 or more then 9
+      for ($i = 2; $i < $repeat + 1; $i++) {
         $t = $i - 1;
+        $j = $i - 2;
+        $andorj = ( isset($andOrs[$j]) ? $andOrs[$j] : 'AND' );
         $field_and_term = explode(':', $queryArray[$t]);
         $form["andor$t"] = array(
                 '#title' => t(''),
                 '#type' => 'select',
-                '#default_value' => 'AND',
+                '#default_value' => $andorj,
                 '#options' => $andOrArray
         );
         $form['search_type']["type$i"] = array(
@@ -346,7 +336,7 @@ class IslandoraSolrResults {
                 '#size' => '24',
                 '#type' => 'textfield',
                 '#title' => t(''),
-                '#default_value' => (count($field_and_term) >= 2 ? trim($field_and_term[1]) : ''),
+                '#default_value' => (count($field_and_term) >= 2 ? trim($field_and_term[1],'()') : ''),
         );
       }
     }
