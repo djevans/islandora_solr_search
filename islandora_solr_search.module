@@ -29,9 +29,13 @@ function islandora_solr_search_menu() {
   return $items;
 }
 
+
 /**
  * Implementation of hook_block().
  */
+
+
+
 function islandora_solr_search_block($op = 'list', $delta = 0, $edit = array()) {
   // The $op parameter determines what piece of information is being requested.
   switch ($op) {
@@ -146,18 +150,18 @@ function islandora_solr_search($query, $startPage = 1, $fq=null, $dismax=null) {
 }
 
 function islandora_solr_search_block_form_submit($form, &$form_state) {
-  module_load_include('php', 'islandora_solr_search', 'Solr/Service');
+  require_once(drupal_get_path('module', 'islandora_solr_search') . '/IslandoraSolrResults.inc');
   $type_id = trim($form_state['values']['type']);
   $repeat = variable_get('islandora_solr_search_block_repeat', t('3'));
-  $searchString = trim($form_state['values']['type1']) . ':' . Apache_Solr_Service::escapePhrase(trim($form_state['values']['fedora_terms1']));
+  $searchString = trim($form_state['values']['type1']) . ':(' . IslandoraSolrResults::lesser_escape(trim($form_state['values']['fedora_terms1'])) . ')';
   if ($form_state['values']['fedora_terms2'] != '') {
-    $searchString .=' ' . trim($form_state['values']['andor1']) . ' ' . trim($form_state['values']['type2']) . ':' . Apache_Solr_Service::escapePhrase(trim($form_state['values']['fedora_terms2']));
+    $searchString .=' ' . trim($form_state['values']['andor1']) . ' ' . trim($form_state['values']['type2']) . ':(' . IslandoraSolrResults::lesser_escape(trim($form_state['values']['fedora_terms2'])) . ')';
   }
   if ($repeat > 2 && $repeat < 9) {
     for ($i = 3; $i < $repeat + 1; $i++) {
       $t = $i - 1;
       if ($form_state['values']["fedora_terms$i"] != '') {
-        $searchString .= ' ' . trim($form_state['values']["andor$t"]) . ' ' . trim($form_state['values']["type$i"]) . ':' . Apache_Solr_Service::escapePhrase(trim($form_state['values']["fedora_terms$i"]));
+        $searchString .= ' ' . trim($form_state['values']["andor$t"]) . ' ' . trim($form_state['values']["type$i"]) . ':(' . IslandoraSolrResults::lesser_escape(trim($form_state['values']["fedora_terms$i"])) . ')';
       }
     }
   }
