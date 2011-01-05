@@ -14,7 +14,7 @@ function islandora_solr_admin_settings() {
       Please install the client directory in the root directory of this module before continuing.');
     return;
   }
-  $handlers[] = 'standard';
+  $handlers['standard'] = 'standard';
   $solr_avail = solr_available();
   if ($solr_avail) {
     $handlers = get_handlers();
@@ -123,7 +123,7 @@ function get_handlers() {
   $xml = simplexml_load_string(curl_exec($ch));
   foreach ($xml->requestHandler as $handler) {
     if ($handler['class'] == 'solr.SearchHandler') {
-      $handlers[] = (string) $handler['name'];
+      $handlers[(string) $handler['name']] = (string) $handler['name'];
     }
   }
   return $handlers;

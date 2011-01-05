@@ -33,7 +33,7 @@ $islandora_solrQuery = str_replace('/', IslandoraSolrResults::$slashReplacement,
 if (empty($islandora_solrQuery)) {
 $islandora_solrQuery = '%20'; //so we can allow empty queries to dismax
 }
-// module_load_include('php', 'fedora_repository', 'Solr/Service');
+
 
 $url = variable_get('islandora_solr_search_block_url', 'localhost:8080/solr');
 $pathParts = parse_url($url);
@@ -50,14 +50,8 @@ $additionalParams = array(
  'qt' => $requestHandler,
  'facet.field' => explode(',', variable_get("islandora_solr_search_block_facets", 'dc.subject,dc.type')), //comma separated list configured in the block config
 );
-$host = variable_get('islandora_solr_search_block_host', 'localhost');
-$port = variable_get('islandora_solr_search_block_port', '8080');
-$appName = variable_get('islandora_solr_search_block_app_name', 'solr');
-$solr = new Apache_Solr_Service($host, $port, '/'.$appName.'/');
-$query = $this->parseQuery($solr, $query, $dismax, $solr); //fix the query as some characters will break the search : and / slash are examples
-$facetlimit = variable_get('islandora_solr_search_block_facet_limit', '12');
-$facetMinCount = variable_get('islandora_solr_search_block_facet_min_count', '2');
-$requestHandler = variable_get("islandora_solr_search_block_request_handler", t("standard"));
+
+
 $debugQuery = (variable_get('islandora_solr_search_debug_mode', 0) ? "true" : null ); //any val incl. 'false' is treated as true by Solr
 
 global $islandora_fq;
