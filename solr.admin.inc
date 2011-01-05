@@ -14,10 +14,10 @@ function islandora_solr_admin_settings() {
       Please install the client directory in the root directory of this module before continuing.');
     return;
   }
-
+  $handlers[] = 'standard';
   $solr_avail = solr_available();
   if ($solr_avail) {
-    $handlers = get_solr_config();
+    $handlers = get_handlers();
   }
 
 
@@ -115,8 +115,8 @@ function solr_available() {
   return false;
 }
 
-function get_solr_config() {
-  $url = variable_get('islandora_solr_search_block_url', 'localhost:8080/solr') . '/admin/file/?file=solrconfig.xml1';
+function get_handlers() {
+  $url = variable_get('islandora_solr_search_block_url', 'localhost:8080/solr') . '/admin/file/?file=solrconfig.xml';
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
   curl_setopt($ch, CURLOPT_URL, $url);
