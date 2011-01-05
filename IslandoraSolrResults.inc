@@ -46,10 +46,12 @@ class IslandoraSolrResults {
     global $islandora_fq;
     if($fq != NULL && $fq != '-') {
       $fq = str_replace(IslandoraSolrResults::$slashReplacement,'/',$fq);//put the slash back
-      if(strpos($fq,'-')===0) {//remove the requested facet from the list
-        $fq = substr($fq,strpos($fq,IslandoraSolrResults::$facetSeparator)+1);
-      }
-      $fqs = $this->solr_escape($this->csv_explode(IslandoraSolrResults::$facetSeparator,$fq,'"',true));//to filter by more then one facet we will separate them by~ for now
+      # THIS IS NO LONGER NECESSARY, OR USEFUL.
+      # HYPHENS SHOULD BE USED FOR FACET EXCLUSION, NOT FILTER REMOVAL.
+      #if(strpos($fq,'-')===0) {//remove the requested facet from the list
+      #  $fq = substr($fq,strpos($fq,IslandoraSolrResults::$facetSeparator)+1);
+      #}
+      $fqs = $this->csv_explode(IslandoraSolrResults::$facetSeparator,$fq,'"',true);//to filter by more then one facet we will separate them by~ for now
       $additionalParams['fq'] = $fqs;
       $islandora_fq = str_replace('/',IslandoraSolrResults::$slashReplacement,$fq);//remove the slash here as we will be using this in url's
     }
@@ -163,8 +165,12 @@ class IslandoraSolrResults {
       $output .= '<div class="islandora_solr_search_search_wrap">';
       $output .= '<div class="islandora_solr_search_facet_title">'.t('Base Query').':</div>';
       $output .= '<div class="islandora_solr_search_facet_value_enabled">';
-      $output .= '<a href="'.$base_url.'/islandora/solr/search/'.htmlspecialchars(drupal_urlencode(" "),ENT_QUOTES,'utf-8',false).'/'.($startPage+1).'/'.htmlspecialchars($islandora_fq,ENT_QUOTES,'utf-8',false).'/dismax"><img class="islandora_solr_add_remove_link" src="/'.drupal_get_path('module', 'islandora_solr_search').'/images/delete.png" alt="Remove search term"></a> ';
-      $output .= $islandora_solrQuery;
+      $output .= l(
+        '<img class="islandora_solr_add_remove_link" src="/'.drupal_get_path('module', 'islandora_solr_search').'/images/delete.png" alt="Remove search term">',
+        'islandora/solr/search/'." ".'/'.($startPage+1).'/'.$islandora_fq.'/dismax',
+        array('html' => true)
+      ).' ';
+      $output .= stripslashes($islandora_solrQuery);
       $output .= '</div>'; // 'islandora_solr_search_facet_value_enabled'
       $output .= '</div>'; // 'islandora_solr_search_search_wrap'
     }
@@ -176,34 +182,39 @@ class IslandoraSolrResults {
       if (count($test)>0) {
         $facet_count = 0;
         unset( $normal_facet_output );
-        $filter_query;
+        $filter_include = null;
+        $filter_exclude = null;
         foreach($field as $name=>$number) {
           if($islandora_fq && $islandora_fq != '-') {//there are existing facets in the query
             $disable_link = strstr($islandora_fq,$key.':"'.str_replace('/',IslandoraSolrResults::$slashReplacement,$name).'"');//we don't want a link for this facet as we already used it
-            if($disable_link) { //don't show link to this facet but include a link to remove it
-              $edited_list = str_replace($key.':"'.str_replace('/',IslandoraSolrResults::$slashReplacement,$name).'"', '', $islandora_fq); //remove the filter query from the list
-              $edited_list = str_replace(IslandoraSolrResults::$facetSeparator.IslandoraSolrResults::$facetSeparator, IslandoraSolrResults::$facetSeparator, $edited_list); //cut out duplicate field separators
-              $edited_list = trim($edited_list,IslandoraSolrResults::$facetSeparator); //cut off trailing field separators
-              $filter_query = htmlspecialchars(drupal_urlencode($edited_list),ENT_QUOTES,'utf-8',false);
+            if($disable_link) { 
+              //don't show link to this facet but include a link to remove it
             } else {
-              $filter_query = $key . ':' . htmlspecialchars('"'.drupal_urlencode($name).'"',ENT_QUOTES,'utf-8',false). IslandoraSolrResults::$facetSeparator . htmlspecialchars(drupal_urlencode($islandora_fq),ENT_QUOTES,'utf-8',false);
+              $filter_include = $key . ':' . '"'.$name.'"'. IslandoraSolrResults::$facetSeparator . $islandora_fq;
+              $filter_exclude = '-'.$key . ':' . '"'.$name.'"'. IslandoraSolrResults::$facetSeparator . $islandora_fq;
             }
           } else { //no existing facets chosen
-            $filter_query = $key . ':' . htmlspecialchars('"'.drupal_urlencode($name).'"',ENT_QUOTES,'utf-8');
+            $filter_include = $key . ':' . '"'.$name.'"';
+            $filter_exclude = '-'.$key . ':' . '"'.$name.'"';
           }
-          $filter_query = str_replace('/',IslandoraSolrResults::$slashReplacement,$filter_query);//replace the slash so url does not break
-          if( empty( $filter_query ) ) {
-            $filter_query = '-';
-          }
-          if($disable_link) {//create a link to remove this facet as it has already been chosen
-            $filter_output .= '<li><div>';
-            $filter_output .= '<a href="'.$base_url.'/islandora/solr/search/'.htmlspecialchars(drupal_urlencode($islandora_solrQuery),ENT_QUOTES,'utf-8',false).'/1/'.$filter_query.'/'.$islandora_defType.'"/><img class="islandora_solr_add_remove_link" src="/'.drupal_get_path('module', 'islandora_solr_search').'/images/delete.png" alt="Remove this filter"></a> ';
-            $filter_output .= $key.' = '.$name ; //no href here #mod zac
-            //$filter_output .= ucwords(str_replace("_"," ",$key)).' = '.$name ; //this version would replace underscore with whitespace, and capitalize first letters of words
-            $filter_output .= "</div></li>";
+          $filter_include = str_replace('/',IslandoraSolrResults::$slashReplacement,$filter_include);//replace the slash so url does not break
+          $filter_exclude = str_replace('/',IslandoraSolrResults::$slashReplacement,$filter_exclude);//replace the slash so url does not break
+          if($disable_link) {
+            // we don't want to create a link, because we're already filtering on this value.
+            // Links to remove enabled facet filters are created down below.
           } else {//normal link
-            $normal_facet_output .= '<li><div><a href="'.$base_url.'/islandora/solr/search/'.htmlspecialchars(drupal_urlencode($islandora_solrQuery),ENT_QUOTES,'utf-8',false).'/1/'.$filter_query.'/'.$islandora_defType.'"/>'.$name.'</a> ('.$number.')</div></li>';
-            $facet_count++;
+            if( $key != 'cbmrn.dsid' || !in_array($name,array('AUDIT','DC','RELS-EXT') ) ) {
+              $evenodd = ( $facet_count%2 ? 'odd' : 'even' );
+              $lplus  = 'islandora/solr/search/'.$islandora_solrQuery.'/1/'.$filter_include.'/'.$islandora_defType;
+              $lminus = 'islandora/solr/search/'.$islandora_solrQuery.'/1/'.$filter_exclude.'/'.$islandora_defType;
+              $text  = $name;
+              $attrs = array();
+              $normal_facet_output .= '<li class="'.$evenodd.'"><div>' . 
+                  l( $text, $lplus, $attrs ) . ' ('.$number.')'.
+                  '<span class="plusminus">'.l('+',$lplus,array('attributes'=>array('class'=>'plus'))).' '.l('-',$lminus,array('attributes'=>array('class'=>'plus'))).'</span>'.
+                '</div></li>';
+              $facet_count++;
+            }
           }
         }
         if( $facet_count >=2 ) {
@@ -217,9 +228,45 @@ class IslandoraSolrResults {
         }
       }
     }
-    // as we add additional facets, we're repeatedly URL-encoding old facet 
-    // strings. when we double-encode quotation marks they're incomprehensible to solr.
-    // This is a quick workaround:
+
+    //////////////////////////////////////////////////////////////////////////////
+    // Here we will build links to remove currently enforced facet filters ...  //
+    //////////////////////////////////////////////////////////////////////////////
+    $filters = explode(IslandoraSolrResults::$facetSeparator,$islandora_fq);
+    if(!empty($filters) && $islandora_fq != '-') {
+      $filter_output = null;
+      foreach( $filters as $key=>$filter ) {
+        $filter_output .= '<li><div>';
+        $edit_filters = $filters;
+        unset($edit_filters[$key]);
+        $filter_disable = implode(IslandoraSolrResults::$facetSeparator, $edit_filters);
+        if( empty( $filter_disable ) ) {
+          $filter_disable = '-';
+        }
+        $filter_output .= l(
+          '<img class="islandora_solr_add_remove_link" src="/'.drupal_get_path('module', 'islandora_solr_search').'/images/delete.png" alt="Remove this filter">', 
+          'islandora/solr/search/'.$islandora_solrQuery.'/1/'.$filter_disable.'/'. $islandora_defType,
+          array('html' => true)
+        ).' ';
+        $filter_name_and_value = explode( ":", $filter, 2 );
+        $filter_name = $filter_name_and_value[0];
+        $filter_value = $filter_name_and_value[1];
+        if( strncmp( $filter_name, '-', 1 ) ) 
+          $exclude = false;
+        else {
+          $exclude = true;
+          $filter_name = substr($filter_name, 1);
+        }
+        $filter_output .= ucwords(str_replace("_"," ",$filter_name)). ($exclude ? ' != ' : ' = ') . $filter_value;
+        $filter_output .= "</div></li>";
+      }
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    // as we add additional facets, we're repeatedly URL-encoding old facet             //
+    // strings. when we double-encode quotation marks they're incomprehensible to solr. //
+    // This is a quick workaround:                                                      //
+    //////////////////////////////////////////////////////////////////////////////////////
     $facet_output = str_replace('%2B','%252B',$facet_output);
     if(!empty($filter_output)) {
       $filter_output = str_replace('%2B','%252B',$filter_output);
@@ -235,6 +282,7 @@ class IslandoraSolrResults {
 
     return $output;
   }
+
 //a better explode method allows quotes in the returned strings.  taken from the php.net site
   function csv_explode($delim=',', $str, $enclose='"', $preserve=false) {
     $resArr = array();
