@@ -5,4 +5,4 @@ The code in this module is dependant on the PHP Solr Client, available from
 http://code.google.com/p/solr-php-client
 
 This code used to display search results can be modified through an external customization
-module.  IslandoraSolrConfig has been included as a template to show how this is done.
+module.  Islandora_solr-config has been included as a template to show how this is done.
