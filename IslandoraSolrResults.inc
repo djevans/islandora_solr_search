@@ -257,7 +257,7 @@ class IslandoraSolrResults {
           $exclude = true;
           $filter_name = substr($filter_name, 1);
         }
-        $filter_output .= ucwords(str_replace("_"," ",$filter_name)). ($exclude ? ' != ' : ' = ') . $filter_value;
+        $filter_output .= $filter_name . ($exclude ? ' != ' : ' = ') . $filter_value;
         $filter_output .= "</div></li>";
       }
     }
