@@ -22,7 +22,7 @@ class IslandoraSolrResults {
   function searchAndDisplay($query, $startPage=1, $fq=null, $dismax=null) {
     $limit = variable_get('islandora_solr_search_num_of_results', 20);
     global $islandora_solrQuery, $islandora_solr_page_number, $base_url; //used by facet block as well
-    $configs = explode('~', variable_get('islandora_solr_config_options'));
+    $configs = explode('~', variable_get('islandora_solr_config_options','islandora_solr_search~IslandoraSolrResults.inc~IslandoraSolrResults~displayResults'));
     $classFile = $configs[1];
     module_load_include('', $configs[0], $configs[1]);
     $solrClass = $configs[2];

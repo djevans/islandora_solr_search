@@ -15,7 +15,7 @@
  */
 
 function islandora_solr_config_form_islandora_solr_admin_settings_alter(&$form, &$form_state) {
-  $module   = 'IslandoraSolrConfig';
+  $module   = 'islandora_solr_config';
   $file     = 'CustomizedResults.inc';
   $class    = 'CustomizedIslandoraSolrResults';
   $method   = 'displayResults';
@@ -32,11 +32,11 @@ function islandora_solr_config_form_islandora_solr_admin_settings_alter(&$form, 
 function islandora_solr_config_help($path, $arg) {
 
   switch ($path) {
-    case 'admin/help#IslandoraSolrConfig':
+    case 'admin/help#islandora_solr_config':
       return t("When 'Sample Custom Settings' is selected from the conguration dropdown in the<br />
         !page the following settings will be used.
         <ul>
-        <li>Module - IslandoraSolrConfig</l1>
+        <li>Module - islandora_solr_config</l1>
         <li>File - CustomizedResults.inc</l1>
         <li>Class - IslandoraSolrResults</l1>
         <li>Method - displayResults</l1>
