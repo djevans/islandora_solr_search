@@ -24,6 +24,7 @@ function islandora_solr_admin_settings() {
   // optional config modules will use hook_alter_form to add to this array
 
   $config_options = array();
+  //               module_name          file_name                 class_name           display_method
   $config_options['islandora_solr_search~IslandoraSolrResults.inc~IslandoraSolrResults~displayResults'] = 'Default';
 
   $form = array();
@@ -45,7 +46,7 @@ function islandora_solr_admin_settings() {
       '#multiple' => false,
       '#options' => $config_options,
       '#description' => t('Name of configuration package for displaying output.'),
-      '#default_value' => variable_get('islandora_solr_config_options', 'islandora_solr_search~IslandoraSolrResults.inc~displayResults'),
+      '#default_value' => variable_get('islandora_solr_config_options', 'islandora_solr_search~IslandoraSolrResults.inc~IslandoraSolrResults~displayResults'),
   );
   $form['islandora_solr_search_block_repeat'] = array(
       '#type' => 'textfield',
