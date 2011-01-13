@@ -99,7 +99,7 @@ class IslandoraSolrResults {
     if (class_exists($solrClass)) {
       $implementation = new $solrClass();
     } else {
-      drupal_set_message(t('Error loading solr results class. Class could not be loaded. Check the Islandora Solr search blocks configuration.'), 'error');
+      drupal_set_message(t('Error loading solr results class. Class '.$solrClass.' could not be loaded. Check the Islandora Solr search blocks configuration.'), 'error');
       return ' ';
     }
 
