@@ -1,5 +1,5 @@
 ; $Id$ 
-name = Islandora Configuration Package Sample
+name = Islandora Solr Sample Configuration
 description = Sample Code for  Implementation of Islandora Solr Search
 dependencies[] = islandora_solr_search
 description = Customizes Islandora solr search
