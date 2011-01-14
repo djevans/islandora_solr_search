@@ -240,7 +240,7 @@ class IslandoraSolrResults {
           $filter_disable = '-';
         }
         $filter_output .= l(
-          '<img class="islandora_solr_add_remove_link" src="/'.drupal_get_path('module', 'islandora_solr_search').'/images/delete.png" alt="Remove this filter">', 
+          '<img class="islandora_solr_add_remove_link" src="'.$base_url.'/'.drupal_get_path('module', 'islandora_solr_search').'/images/delete.png" alt="Remove this filter">', 
           'islandora/solr/search/'.$islandora_solrQuery.'/1/'.$filter_disable.'/'. $islandora_defType,
           array('html' => true)
         ).' ';
