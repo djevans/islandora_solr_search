@@ -162,7 +162,7 @@ class IslandoraSolrResults {
       $output .= '<div class="islandora_solr_search_facet_title">'.t('Base Query').':</div>';
       $output .= '<div class="islandora_solr_search_facet_value_enabled">';
       $output .= l(
-        '<img class="islandora_solr_add_remove_link" src="/'.drupal_get_path('module', 'islandora_solr_search').'/images/delete.png" alt="Remove search term">',
+        '<img class="islandora_solr_add_remove_link" src="'.$base_url.'/'.drupal_get_path('module', 'islandora_solr_search').'/images/delete.png" alt="Remove search term">',
         'islandora/solr/search/'." ".'/'.($startPage+1).'/'.$islandora_fq.'/dismax',
         array('html' => true)
       ).' ';
