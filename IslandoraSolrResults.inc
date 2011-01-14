@@ -55,10 +55,12 @@ class IslandoraSolrResults {
     global $islandora_fq;
     if ($fq != NULL && $fq != '-') {
       $fq = str_replace(IslandoraSolrResults::$slashReplacement, '/', $fq); //put the slash back
-      if (strpos($fq, '-') === 0) {//remove the requested facet from the list
-        $fq = substr($fq, strpos($fq, IslandoraSolrResults::$facetSeparator) + 1);
-      }
-      $fqs = $this->solr_escape($this->csv_explode(IslandoraSolrResults::$facetSeparator, $fq, '"', true)); //to filter by more then one facet we will separate them by~ for now
+      # THIS IS NO LONGER NECESSARY, OR USEFUL.
+      # HYPHENS SHOULD BE USED FOR FACET EXCLUSION, NOT FILTER REMOVAL.
+      #if(strpos($fq,'-')===0) {//remove the requested facet from the list
+      #  $fq = substr($fq,strpos($fq,IslandoraSolrResults::$facetSeparator)+1);
+      #}
+      $fqs = $this->csv_explode(IslandoraSolrResults::$facetSeparator,$fq,'"',true);//to filter by more then one facet we will separate them by~ for nowseparate them by~ for now
       $additionalParams['fq'] = $fqs;
       $islandora_fq = str_replace('/', IslandoraSolrResults::$slashReplacement, $fq); //remove the slash here as we will be using this in url's
     }
