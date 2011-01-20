@@ -68,7 +68,9 @@ class IslandoraSolrResultsTable extends IslandoraSolrResults {
         // str_replace later on.
         if($field=='dc.title' || $field=='dc:title') {
           foreach ($value as $key=>$val) {
-            $value[$key] = '<a href="'.$base_url.'/fedora/repository/'.$doc->PID.'/-/'.$val.'">'.$val.'</a>';
+            if(isset($doc->PID)) {
+              $value[$key] = '<a href="'.$base_url.'/fedora/repository/'.$doc->PID.'/-/'.$val.'">'.$val.'</a>';
+            }
           }
         }
         $value = implode(", ",$value);
@@ -98,7 +100,7 @@ class IslandoraSolrResultsTable extends IslandoraSolrResults {
       if( $num == 0 ) $rowclass[] = 'first';
       $output .= '<tr class="'. implode(" ",$rowclass) .'">';
       $result_num = $recordStart + $num + 1;
-      $output .= '<th>'. $result_num .'</th>';
+      $output .= '<th>'. (isset($val_array['PID']) ? l($result_num,$base_url.'/fedora/repository/'.$val_array['PID']) : $result_num) .'</th>';
       foreach ($fields as $field) {
         if (!empty ($val_array[$field])) {
           $output .= '<td>'.$val_array[$field].'</td>';
