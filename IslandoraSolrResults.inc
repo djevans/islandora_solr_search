@@ -203,18 +203,16 @@ class IslandoraSolrResults {
             // we don't want to create a link, because we're already filtering on this value.
             // Links to remove enabled facet filters are created down below.
           } else {//normal link
-            if( $key != 'cbmrn.dsid' || !in_array($name,array('AUDIT','DC','RELS-EXT') ) ) {
-              $evenodd = ( $facet_count%2 ? 'odd' : 'even' );
-              $lplus  = 'islandora/solr/search/'.$islandora_solrQuery.'/1/'.$filter_include.'/'.$islandora_defType;
-              $lminus = 'islandora/solr/search/'.$islandora_solrQuery.'/1/'.$filter_exclude.'/'.$islandora_defType;
-              $text  = $name;
-              $attrs = array();
-              $normal_facet_output .= '<li class="'.$evenodd.'"><div>' . 
-                  l( $text, $lplus, $attrs ) . ' ('.$number.')'.
-                  '<span class="plusminus">'.l('+',$lplus,array('attributes'=>array('class'=>'plus'))).' '.l('-',$lminus,array('attributes'=>array('class'=>'plus'))).'</span>'.
-                '</div></li>';
-              $facet_count++;
-            }
+            $evenodd = ( $facet_count%2 ? 'odd' : 'even' );
+            $lplus  = 'islandora/solr/search/'.$islandora_solrQuery.'/1/'.$filter_include.'/'.$islandora_defType;
+            $lminus = 'islandora/solr/search/'.$islandora_solrQuery.'/1/'.$filter_exclude.'/'.$islandora_defType;
+            $text  = $name;
+            $attrs = array();
+            $normal_facet_output .= '<li class="'.$evenodd.'"><div>' . 
+                l( $text, $lplus, $attrs ) . ' ('.$number.')'.
+                '<span class="plusminus">'.l('+',$lplus,array('attributes'=>array('class'=>'plus'))).' '.l('-',$lminus,array('attributes'=>array('class'=>'plus'))).'</span>'.
+              '</div></li>';
+            $facet_count++;
           }
         }
         if( $facet_count >=2 ) {
