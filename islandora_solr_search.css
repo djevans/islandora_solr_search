@@ -37,9 +37,34 @@ img.islandora_solr_add_remove_link
   vertical-align: middle;
 }
 
+.islandora_solr_search_enabled_filters ul.filter_list 
+{
+  padding: 0;
+}
 .islandora_solr_search_enabled_filters ul.filter_list li
 {
   list-style: none inside none;
   padding: 0;
+  margin: 0;
   background-image: none;
+}
+table.islandora_solr_search_results
+{
+  font-size: 80%;
+}
+table.islandora_solr_search_results tr
+{
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+}
+table.islandora_solr_search_results tr td
+{
+  padding: 0 2px;
+}
+
+.islandora_solr_search_facet_wrap {
+}
+
+.islandora_solr_search_facet_wrap .plusminus {
+  float:right;
 }

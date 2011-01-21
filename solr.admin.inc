@@ -24,6 +24,7 @@ function islandora_solr_admin_settings() {
   // optional config modules will use hook_alter_form to add to this array
 
   $config_options = array();
+  //               module_name          file_name                 class_name           display_method
   $config_options['islandora_solr_search~IslandoraSolrResults.inc~IslandoraSolrResults~displayResults'] = 'Default';
 
   $form = array();
@@ -40,12 +41,15 @@ function islandora_solr_admin_settings() {
     '#suffix' => '<p>' . ($solr_avail ? '<img src="' . url('misc/watchdog-ok.png') . '"/>' . t('Successfully connected to Solr server at !islandora_solr_search_block_url', array('!islandora_solr_search_block_url' => variable_get('islandora_solr_search_block_url', ''))) : '<img src="' . url('misc/watchdog-error.png') . '"/> ' . t('Unable to connect to Solr server at !islandora_solr_search_block_url</p>', array('!islandora_solr_search_block_url' => variable_get('islandora_solr_search_block_url', '')))),
   );
   $form['islandora_solr_config_options'] = array(
-    '#type' => 'select',
-    '#title' => t('Configuration package'),
-    '#multiple' => false,
-    '#options' => $config_options,
-    '#description' => t('Name of configuration package for displaying output.'),
-    '#default_value' => variable_get('islandora_solr_config_options', 'islandora_solr_search~IslandoraSolrResults.inc~displayResults'),
+
+    
+      '#type' => 'select',
+      '#title' => t('Configuration package'),
+      '#multiple' => false,
+      '#options' => $config_options,
+      '#description' => t('Name of configuration package for displaying output.'),
+      '#default_value' => variable_get('islandora_solr_config_options', 'islandora_solr_search~IslandoraSolrResults.inc~IslandoraSolrResults~displayResults'),
+
   );
   $form['islandora_solr_search_block_repeat'] = array(
     '#type' => 'textfield',
@@ -62,11 +66,13 @@ function islandora_solr_admin_settings() {
     '#default_value' => variable_get('islandora_solr_search_block_request_handler', t('standard')),
   );
   $form['islandora_solr_search_block_facets'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Facet Fields'),
-    // '#size' => 75,
-    '#description' => t('a space separated list of fields to use as facets'),
-    '#default_value' => variable_get('islandora_solr_search_block_facets', t('dc.subject dc.type')),
+
+      '#type' => 'textarea',
+      '#title' => t('Facet Fields'),
+      // '#size' => 75,
+      '#description' => t('a comma-separated list of fields to use as facets'),
+      '#default_value' => variable_get('islandora_solr_search_block_facets', t('dc.subject,dc.type')),
+
   );
 
 
