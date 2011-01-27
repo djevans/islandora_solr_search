@@ -1,11 +1,7 @@
 ; $Id$ 
-<<<<<<< HEAD
-name = Islandora Solr Search Configuration
-description = Sample Code for  Implementation of Islandora Solr Search
-=======
+
 name = Islandora Solr Sample Configuration
 description = Example Code for Implementation of Islandora Solr Search Configuration providing Table output.
->>>>>>> 9a713ea43a82ab02a8f55cb73c03c7969c20ec50
 dependencies[] = islandora_solr_search
 description = Customizes Islandora solr search
 package = Fedora Repository
