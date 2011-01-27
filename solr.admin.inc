@@ -15,7 +15,7 @@ function islandora_solr_admin_settings() {
     return;
   }
   $handlers['standard'] = 'standard';
-  $solr_avail = solr_available();
+  $solr_avail = static_solr_available();
   if ($solr_avail) {
     $handlers = get_handlers();
   }
@@ -26,30 +26,56 @@ function islandora_solr_admin_settings() {
   $config_options = array();
   //               module_name          file_name                 class_name           display_method
   $config_options['islandora_solr_search~IslandoraSolrResults.inc~IslandoraSolrResults~displayResults'] = 'Default';
+  $confirmation_message = ($solr_avail ? '<img src="' . url('misc/watchdog-ok.png') . '"/>'
+          . t('Successfully connected to Solr server at !islandora_solr_search_block_url', array('!islandora_solr_search_block_url' => variable_get('islandora_solr_search_block_url', ''))) : '<img src="'
+          . url('misc/watchdog-error.png') . '"/> '
+          . t('Unable to connect to Solr server at !islandora_solr_search_block_url</p>', array('!islandora_solr_search_block_url' => variable_get('islandora_solr_search_block_url', ''))));
 
   $form = array();
-  $form['wrapper'] = array(
+
+
+  $form['solr_ahah_wrapper'] = array(
+  
     '#type' => 'fieldset',
+   
   );
-  $form['wrapper']['islandora_solr_search_block_url'] = array(
+
+  $form['solr_ahah_wrapper']['islandora_solr_search_block_url'] = array(
     '#type' => 'textfield',
     '#title' => t('Solr url'),
     '#size' => 25,
     '#weight' => -1,
     '#description' => t('The url of the Solr installation.  The default is localhost:8080/solr.'),
     '#default_value' => variable_get('islandora_solr_search_block_url', 'localhost:8080/solr'),
-    '#suffix' => '<p>' . ($solr_avail ? '<img src="' . url('misc/watchdog-ok.png') . '"/>' . t('Successfully connected to Solr server at !islandora_solr_search_block_url', array('!islandora_solr_search_block_url' => variable_get('islandora_solr_search_block_url', ''))) : '<img src="' . url('misc/watchdog-error.png') . '"/> ' . t('Unable to connect to Solr server at !islandora_solr_search_block_url</p>', array('!islandora_solr_search_block_url' => variable_get('islandora_solr_search_block_url', '')))),
+    '#ahah' => array(
+      'path' => 'islandora/solr/process',
+      'wrapper' => 'solr-url',
+      'effect' => 'fade',
+      'event' => 'blur',
+    ),
   );
+
+  $form['solr_ahah_wrapper']['infobox'] = array(
+    '#prefix' => '<div id="solr-url">',
+    '#suffix' => '</div>',
+    '#type' => 'item',
+    '#value' => $confirmation_message,
+  );
+  $form['solr_ahah_wrapper']['islandora_solr_search_block_request_handler'] = array(
+    '#type' => 'select',
+    '#title' => t('Request Handler'),
+    '#options' => $handlers,
+    '#description' => t('The name of the solr request handler to use for this search.  This must be configured in your solr config file.  If this is not set we will use the default handler.'),
+    '#default_value' => variable_get('islandora_solr_search_block_request_handler', t('standard')),
+  );
+
   $form['islandora_solr_config_options'] = array(
-
-    
-      '#type' => 'select',
-      '#title' => t('Configuration package'),
-      '#multiple' => false,
-      '#options' => $config_options,
-      '#description' => t('Name of configuration package for displaying output.'),
-      '#default_value' => variable_get('islandora_solr_config_options', 'islandora_solr_search~IslandoraSolrResults.inc~IslandoraSolrResults~displayResults'),
-
+    '#type' => 'select',
+    '#title' => t('Configuration package'),
+    '#multiple' => false,
+    '#options' => $config_options,
+    '#description' => t('Name of configuration package for displaying output.'),
+    '#default_value' => variable_get('islandora_solr_config_options', 'islandora_solr_search~IslandoraSolrResults.inc~IslandoraSolrResults~displayResults'),
   );
   $form['islandora_solr_search_block_repeat'] = array(
     '#type' => 'textfield',
@@ -58,21 +84,13 @@ function islandora_solr_admin_settings() {
     '#description' => t('The number of times you would like the search blocks to be repeated'),
     '#default_value' => variable_get('islandora_solr_search_block_repeat', t('3')),
   );
-  $form['islandora_solr_search_block_request_handler'] = array(
-    '#type' => 'select',
-    '#title' => t('Request Handler'),
-    '#options' => $handlers,
-    '#description' => t('The name of the solr request handler to use for this search.  This must be configured in your solr config file.  If this is not set we will use the default handler.'),
-    '#default_value' => variable_get('islandora_solr_search_block_request_handler', t('standard')),
-  );
+
   $form['islandora_solr_search_block_facets'] = array(
-
-      '#type' => 'textarea',
-      '#title' => t('Facet Fields'),
-      // '#size' => 75,
-      '#description' => t('a comma-separated list of fields to use as facets'),
-      '#default_value' => variable_get('islandora_solr_search_block_facets', t('dc.subject,dc.type')),
-
+    '#type' => 'textarea',
+    '#title' => t('Facet Fields'),
+    // '#size' => 75,
+    '#description' => t('a comma-separated list of fields to use as facets'),
+    '#default_value' => variable_get('islandora_solr_search_block_facets', t('dc.subject,dc.type')),
   );
 
 
@@ -109,7 +127,7 @@ function islandora_solr_admin_settings() {
   return system_settings_form($form);
 }
 
-function solr_available() {
+function static_solr_available() {
   // path from url is parsed to allow graceful inclusion or exclusion of 'http://'
   $url = variable_get('islandora_solr_search_block_url', 'localhost:8080/solr') . '';
   $pathParts = parse_url($url);

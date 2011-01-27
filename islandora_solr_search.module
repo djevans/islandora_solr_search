@@ -16,6 +16,15 @@ function islandora_solr_search_menu() {
     'access arguments' => array('view fedora collection'), //depends of fedora_repository view
     'type' => MENU_CALLBACK,
   );
+
+  $items['islandora/solr/process'] = array(
+    'page callback' => 'solr_settings_ahah_callback',
+    'access arguments' => array('view fedora collection'), 
+    'file' => 'solr.ahah.inc',
+    'type' => MENU_CALLBACK,
+
+  );
+
   $items['admin/settings/islandora_solr_search'] = array(
     'title' => 'Islandora Solr Client',
     'description' => 'Managing Islandora Solr Searching',
