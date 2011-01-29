@@ -1,7 +1,7 @@
 <?php
 
 global $islandora_query;
-
+module_load_include('inc', 'islandora_solr_search','solr.admin');
 /**
  * @file
  * Implementation of Solr search for the Islandora fedora_search module.
@@ -17,10 +17,11 @@ function islandora_solr_search_menu() {
     'type' => MENU_CALLBACK,
   );
 
+
   $items['islandora/solr/process'] = array(
-    'page callback' => 'solr_settings_ahah_callback',
+    'page callback' => 'update_solr_url_div',
     'access arguments' => array('view fedora collection'), 
-    'file' => 'solr.ahah.inc',
+    'file' => 'solr.admin.inc',
     'type' => MENU_CALLBACK,
 
   );
@@ -34,6 +35,8 @@ function islandora_solr_search_menu() {
     'file' => 'solr.admin.inc',
     'type' => MENU_NORMAL_ITEM,
   );
+
+
 
   return $items;
 }
