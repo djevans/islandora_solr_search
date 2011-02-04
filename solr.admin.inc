@@ -45,7 +45,7 @@ function islandora_solr_admin_settings(&$form_state) {
     '#title' => t('Solr url'),
     '#size' => 25,
     '#weight' => -1,
-    '#description' => t('The url of the Solr installation.  The default is localhost:8080/solr.'),
+    '#description' => t('The url of the Solr installation.  Defaults to localhost:8080/solr.'),
     '#default_value' => $solr_url,
     '#ahah' => array(
       'path' => 'islandora/solr/process',
@@ -53,6 +53,13 @@ function islandora_solr_admin_settings(&$form_state) {
       'effect' => 'fade',
       'event' => 'blur',
     ),
+  );
+
+  $form['solr_ahah_wrapper']['refresh_page'] = array(
+    '#type' => 'submit',
+    '#value' => t('Test connection'),
+    '#attributes' => array('class' => 'refresh-button'),
+    '#submit' => array('solr_admin_refresh'),
   );
 
   $form['solr_ahah_wrapper']['infobox'] = array(
@@ -64,7 +71,7 @@ function islandora_solr_admin_settings(&$form_state) {
     '#type' => 'select',
     '#title' => t('Request Handler'),
     '#options' => $handlers,
-    '#description' => t('The name of the solr request handler to use for this search.  This must be configured in your solr config file.  If this is not set we will use the default handler.'),
+    '#description' => t('Request handlers defined by !config', array('!config' => l('solrconfig.xml', 'http://wiki.apache.org/solr/SolrConfigXml' ))),
     '#default_value' => variable_get('islandora_solr_search_block_request_handler', t('standard')),
   );
 
@@ -210,18 +217,16 @@ function callback_prep() {
   return $form;
 }
 
-
 /**
  *
  * @param array $form
  * @param array $form_state
  * @return null
  */
-
 function solr_settings_form_submit($form, &$form_state) {
-  // early bailout if submit comes from ahah call
 
-  if (!empty($form_state['ahah_submission'])) {
+  if ($form_state['clicked_button']['#id'] != 'edit-submit') {
+    $form_state['rebuild'] = TRUE;
     return;
   }
   $op = isset($form_state['values']['op']) ? $form_state['values']['op'] : '';
@@ -249,4 +254,11 @@ function solr_settings_form_submit($form, &$form_state) {
 
   cache_clear_all();
   drupal_rebuild_theme_registry();
+}
+
+function solr_admin_refresh($form, &$form_state) {
+  $values = $form_state['values'];
+  unset($form_state['submit_handlers']);
+  form_execute_handlers('submit', $form, $form_state);
+  $form_state['rebuild'] = TRUE;
 }

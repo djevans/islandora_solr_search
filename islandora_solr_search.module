@@ -223,3 +223,6 @@ function islandora_solr_search_help($path, $arg) {
   }
 }
 
+function islandora_solr_search_init() {
+  drupal_add_css(drupal_get_path('module', 'islandora_solr_search') . '/islandora_solr_search.css');
+}
