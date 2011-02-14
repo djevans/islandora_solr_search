@@ -98,7 +98,7 @@ class IslandoraSolrResults {
     if ($recordStart < ($total - $limit)) {
       $output .='<li class = "pager-next"><a href="' . $base_url . '/islandora/solr/search/' . htmlspecialchars(drupal_urlencode($islandora_solrQuery), ENT_QUOTES, 'utf-8', false) . '/' . ($startPage + 1) . '/' . htmlspecialchars($islandora_fq, ENT_QUOTES, 'utf-8', false) . '/' . $dismax . '">next ›</a></li>';
     }
-    $output .= '</div></ul>'; //added closing div for drupal paging here
+    $output .= '</ul><!-- pager --></div><!-- item-list -->'; 
 
     if (class_exists($solrClass)) {
       $implementation = new $solrClass();
