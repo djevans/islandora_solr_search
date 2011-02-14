@@ -129,7 +129,7 @@ function islandora_solr_simple_search_form_submit($form, &$form_state) {
   //$searchString = drupal_urlencode($searchString);
   $searchString = htmlspecialchars(drupal_urlencode($searchString), ENT_QUOTES, 'utf-8', false);
   $searchString = str_replace('/', '~slsh~', $searchString); //replace the slash so url doesn't break
-  drupal_goto("islandora/solr/search/$searchString/1/-/dismax");
+  drupal_goto("islandora/solr/search/$searchString/-/dismax");
 }
 
 function islandora_solr_search_block_form() {
@@ -172,7 +172,7 @@ function islandora_solr_search_block_form_submit($form, &$form_state) {
   }
   $searchString = htmlspecialchars(drupal_urlencode($searchString), ENT_QUOTES, 'utf-8', false);
   $searchString = str_replace('/', '~slsh~', $searchString); //replace the slash so url doesn't break
-  drupal_goto("islandora/solr/search/$searchString/1");
+  drupal_goto("islandora/solr/search/$searchString/-");
 }
 
 /**

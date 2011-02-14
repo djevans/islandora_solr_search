@@ -4,6 +4,38 @@
  * contains methods to search solr and display results.  depends on Apache_Solr_Php client.
  */
 
+
+/**
+ * Initialize a pager for theme('pager') without running an SQL query.
+ *
+ * @see pager_query()
+ *
+ * @param $total
+ *  The total number of items found.
+ * @param $limit
+ *  The number of items you will display per page.
+ * @param $element
+ *  An optional integer to distinguish between multiple pagers on one page.
+ *
+ * @return
+ *  The current page for $element. 0 by default if $_GET['page'] is empty.
+ */
+function islandora_solr_search_pager_init($total, $limit = 10, $element = 0) {
+  global $pager_page_array, $pager_total, $pager_total_items;
+  $page = isset($_GET['page']) ? $_GET['page'] : '';
+
+  // Convert comma-separated $page to an array, used by other functions.
+  $pager_page_array = explode(',', $page);
+
+  // We calculate the total of pages as ceil(items / limit).
+  $pager_total_items[$element] = $total;
+  $pager_total[$element] = ceil($pager_total_items[$element] / $limit);
+  $pager_page_array[$element] = max(0, min((int)$pager_page_array[$element], ((int)$pager_total[$element]) - 1));
+
+  // return the current position
+  return $pager_page_array[$element];
+}
+
 class IslandoraSolrResults {
 
   static $facetSeparator = '~';//used to separate facets in url
@@ -19,7 +51,8 @@ class IslandoraSolrResults {
   }
 
   //default implementation for solr search.  You can configure others in the block config settings
-  function searchAndDisplay($query, $startPage=1, $fq=null, $dismax=null) {
+  function searchAndDisplay($query, $fq=null, $dismax=null) {
+    $startPage = isset($_GET['page']) ? $_GET['page'] : 0;
     $limit = variable_get('islandora_solr_search_num_of_results', 20);
     global $islandora_solrQuery, $islandora_solr_page_number, $base_url; //used by facet block as well
     $configs = explode('~', variable_get('islandora_solr_config_options','islandora_solr_search~IslandoraSolrResults.inc~IslandoraSolrResults~displayResults'));
@@ -74,7 +107,7 @@ class IslandoraSolrResults {
       $islandora_defType = $dismax;
       $additionalParams['defType'] = $dismax;
     }
-    $recordStart = $startPage - 1;
+    $recordStart = $startPage;
     $recordStart = max(0, $recordStart); //don't want a negative number
     $recordStart = $recordStart * $limit;
     try {
@@ -87,18 +120,15 @@ class IslandoraSolrResults {
       return ' ';
     }
     $total = (int) $results->response->numFound;
-    $start = min(1, $total);
     $end = min(($limit + $recordStart), $total);
-    $output .='<div>Results ' . ($recordStart + 1) . ' - ' . $end . ' of ' . $total . '</div>';
-    $output .='<div class="item-list"><ul class = "pager">'; //opening div for paging links
 
-    if ($recordStart > 0) {
-      $output .='<li class="pager-previous"><a href="' . $base_url . '/islandora/solr/search/' . htmlspecialchars(drupal_urlencode($islandora_solrQuery), ENT_QUOTES, 'utf-8', false) . '/' . max(0, ($startPage - 1)) . '/' . htmlspecialchars($islandora_fq, ENT_QUOTES, 'utf-8', false) . '/' . $dismax . '">‹ previous</a></li> ';
-    }
-    if ($recordStart < ($total - $limit)) {
-      $output .='<li class = "pager-next"><a href="' . $base_url . '/islandora/solr/search/' . htmlspecialchars(drupal_urlencode($islandora_solrQuery), ENT_QUOTES, 'utf-8', false) . '/' . ($startPage + 1) . '/' . htmlspecialchars($islandora_fq, ENT_QUOTES, 'utf-8', false) . '/' . $dismax . '">next ›</a></li>';
-    }
-    $output .= '</ul><!-- pager --></div><!-- item-list -->'; 
+    // Initialize drupal-style pager
+    islandora_solr_search_pager_init($total, $limit);
+
+    // Render Drupal pager (top of search results)
+    // $output .= theme('pager');
+    $output .= '<h2>Search Results</h2>';
+    $output .= '<div id="numresults">(' . ($recordStart + 1) . ' - ' . $end . ' of ' . $total . ')</div>';
 
     if (class_exists($solrClass)) {
       $implementation = new $solrClass();
@@ -115,6 +145,10 @@ class IslandoraSolrResults {
     } else {
       drupal_set_message(t('Error loading solr results class. Could not find the specified method.  Check the Islandora Solr search blocks configuration.'), 'error');
     }
+
+    // Render Drupal pager (bottom of search results)
+    $output .= theme('pager');
+
     global $islandora_facets; //make facets available to the islandora facet block
     $islandora_facets = $results->facet_counts->facet_fields;
     return $output;
@@ -167,7 +201,7 @@ class IslandoraSolrResults {
       $output .= '<div class="islandora_solr_search_facet_value_enabled">';
       $output .= l(
         '<img class="islandora_solr_add_remove_link" src="'.$base_url.'/'.drupal_get_path('module', 'islandora_solr_search').'/images/delete.png" alt="Remove search term">',
-        'islandora/solr/search/'." ".'/'.($startPage+1).'/'.$islandora_fq.'/dismax',
+        'islandora/solr/search/'." ".'/'.$islandora_fq.'/dismax',
         array('html' => true)
       ).' ';
       $output .= stripslashes($islandora_solrQuery);
@@ -204,8 +238,8 @@ class IslandoraSolrResults {
             // Links to remove enabled facet filters are created down below.
           } else {//normal link
             $evenodd = ( $facet_count%2 ? 'odd' : 'even' );
-            $lplus  = 'islandora/solr/search/'.$islandora_solrQuery.'/1/'.$filter_include.'/'.$islandora_defType;
-            $lminus = 'islandora/solr/search/'.$islandora_solrQuery.'/1/'.$filter_exclude.'/'.$islandora_defType;
+            $lplus  = 'islandora/solr/search/'.$islandora_solrQuery.'/'.$filter_include.'/'.$islandora_defType;
+            $lminus = 'islandora/solr/search/'.$islandora_solrQuery.'/'.$filter_exclude.'/'.$islandora_defType;
             $text  = $name;
             $attrs = array();
             $normal_facet_output .= '<li class="'.$evenodd.'"><div>' . 
@@ -243,7 +277,7 @@ class IslandoraSolrResults {
         }
         $filter_output .= l(
           '<img class="islandora_solr_add_remove_link" src="'.$base_url.'/'.drupal_get_path('module', 'islandora_solr_search').'/images/delete.png" alt="Remove this filter">', 
-          'islandora/solr/search/'.$islandora_solrQuery.'/1/'.$filter_disable.'/'. $islandora_defType,
+          'islandora/solr/search/'.$islandora_solrQuery.'/'.$filter_disable.'/'. $islandora_defType,
           array('html' => true)
         ).' ';
         $filter_name_and_value = explode( ":", $filter, 2 );
