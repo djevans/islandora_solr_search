@@ -159,27 +159,36 @@ class IslandoraSolrResults {
 
 //default implementation of display results can be changed in the blocks config
   function displayResults($results){
-      $output.= '<ol start="'.($recordStart + 1).'">';
+    $output.= '<ol start="'.($recordStart + 1).'">';
     global $base_url;
     if(empty($results)) {
       return "no results";
     }
 
     foreach($results->response->docs as $doc) {
-      $output .= '<li><table>';
+      $rows = array();
+      $row = 0;
+
+      $output .= '<li>';
       foreach($doc as $field => $value) {
-        $output .= '<tr><th>'.$field.'</th>';
+        $rows[$row][] = array(
+          'data' => $field,
+          'header' => true,
+        );
         if(is_array($value)) {
           $value = implode(", ",$value);
         }
 
         if($field=='PID') {
-          $output.='<td><a href="'.$base_url.'/fedora/repository/'.htmlspecialchars($value,ENT_QUOTES,'utf-8').'">'.$value.'</td>';
+          $l = l($value,'fedora/repository/'.htmlspecialchars($value,ENT_QUOTES,'utf-8'));
+          $rows[$row][] = $l;
         }else {
-          $output .= '<td>'.$value.'</td>';
+          $rows[$row][] = $value;
         }
+        $row++;
       }
-      $output .='</table></li>';
+      $output .= theme_table(null,$rows,array('class'=>'islandora_solr_search_results_object'));
+      $output .='</li>';
     }
     $output .= '</ol>';
     if( variable_get('islandora_solr_search_debug_mode', 0) ) { // debug dump

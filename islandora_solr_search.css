@@ -48,16 +48,16 @@ img.islandora_solr_add_remove_link
   margin: 0;
   background-image: none;
 }
-table.islandora_solr_search_results
+table.islandora_solr_search_results_table
 {
   font-size: 80%;
 }
-table.islandora_solr_search_results tr
+table.islandora_solr_search_results_table tr
 {
   border-bottom-style: solid;
   border-bottom-width: 1px;
 }
-table.islandora_solr_search_results tr td
+table.islandora_solr_search_results_table tr td
 {
   padding: 0 2px;
 }
