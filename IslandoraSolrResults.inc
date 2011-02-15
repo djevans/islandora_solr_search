@@ -8,6 +8,9 @@
 /**
  * Initialize a pager for theme('pager') without running an SQL query.
  *
+ * The nuts and bolts of this function are borrowed from z3950.module
+ * and also apachesolr.module.
+ *
  * @see pager_query()
  *
  * @param $total
