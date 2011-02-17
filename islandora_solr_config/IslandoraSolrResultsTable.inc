@@ -69,7 +69,7 @@ class IslandoraSolrResultsTable extends IslandoraSolrResults {
         if($field=='dc.title' || $field=='dc:title') {
           foreach ($value as $key=>$val) {
             if(isset($doc->PID)) {
-              $value[$key] = l($val,'/fedora/repository/'.$doc->PID.'/-/'.$val);
+              $value[$key] = l($val,'fedora/repository/'.$doc->PID.'/-/'.$val);
             }
           }
         }
@@ -98,7 +98,7 @@ class IslandoraSolrResultsTable extends IslandoraSolrResults {
       unset($rowclass);
       $result_num = $recordStart + $num + 1;
       $rows[$row][] = array(
-        'data' => (isset($val_array['PID']) ? l($result_num,$base_url.'/fedora/repository/'.$val_array['PID']) : $result_num),
+        'data' => (isset($val_array['PID']) ? l($result_num,'fedora/repository/'.$val_array['PID']) : $result_num),
         'header' => true,
       );
       foreach ($fields as $field) {
