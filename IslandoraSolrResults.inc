@@ -462,41 +462,6 @@ class IslandoraSolrResults {
     return $output;
   }
 
-  function mapsDisplay($results) {
-    $output.= '<ol start="' . ($recordStart + 1) . '">';
-    global $base_url;
-    if (empty($results)) {
-      return "no results";
-    }
-
-    foreach ($results->response->docs as $doc) {
-      $output .= '<li><table>';
-      $rowspan = 0;
-      $pidValue = null;
-      $output .= '<tr>';
-      $output .= '<td ><img src="' . $base_url . '/fedora/repository/' . htmlspecialchars($doc->PID, ENT_QUOTES, 'utf-8') . '/TN"/></td>';
-      $output .= '<td><table>';
-      foreach ($doc as $field => $value) {
-        $rowspan++;
-        $output .= '<tr><th>' . $field . '</th>';
-
-        if (is_array($value)) {
-          $value = implode(", ", $value);
-        }
-        if ($field == 'PID') {
-          $pidValue = $value;
-          $output.='<td><a href="' . $base_url . '/fedora/repository/' . htmlspecialchars($value, ENT_QUOTES, 'utf-8') . '">' . $value . '</td></tr>';
-        } else {
-          $output .= '<td>' . $value . '</td></tr>';
-        }
-      }
-
-      $output .='</table></td></tr></table></li>';
-    }
-    $output .= '</ol>';
-    return $output;
-  }
-
  
 //this function will be removed.  class has been refactored so we only need the display loop.  leaving here until mnpl is updated.
   function mnplSearchAndDisplay($query, $startPage=1, $fq=null, $dismax=null) {

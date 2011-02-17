@@ -15,12 +15,19 @@
  */
 
 function islandora_solr_config_form_islandora_solr_admin_settings_alter(&$form, &$form_state) {
-  $module   = 'islandora_solr_config';
-  $file     = 'IslandoraSolrResultsTable.inc';
-  $class    = 'IslandoraSolrResultsTable';
-  $method   = 'displayResults';
+  $table_module   = 'islandora_solr_config';
+  $table_file     = 'IslandoraSolrResultsTable.inc';
+  $table_class    = 'IslandoraSolrResultsTable';
+  $table_method   = 'displayResults';
+
+  $maps_module   = 'islandora_solr_config';
+  $maps_file     = 'IslandoraSolrResultsMaps.inc';
+  $maps_class    = 'IslandoraSolrResultsMaps';
+  $maps_method   = 'displayResults';
+
   $config_options = $form['islandora_solr_config_options']['#options'];
-  $config_options["${module}~${file}~${class}~${method}"] = 'Table';
+  $config_options["${table_module}~${table_file}~${table_class}~${table_method}"] = 'Table';
+  $config_options["${maps_module}~${maps_file}~${maps_class}~${maps_method}"] = 'Maps';
   $form['islandora_solr_config_options']['#options'] = $config_options;
 }
 
