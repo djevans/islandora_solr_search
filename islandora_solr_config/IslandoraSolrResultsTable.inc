@@ -69,7 +69,7 @@ class IslandoraSolrResultsTable extends IslandoraSolrResults {
         if($field=='dc.title' || $field=='dc:title') {
           foreach ($value as $key=>$val) {
             if(isset($doc->PID)) {
-              $value[$key] = '<a href="'.$base_url.'/fedora/repository/'.$doc->PID.'/-/'.$val.'">'.$val.'</a>';
+              $value[$key] = l($val,'fedora/repository/'.$doc->PID.'/-/'.$val);
             }
           }
         }
@@ -88,30 +88,30 @@ class IslandoraSolrResultsTable extends IslandoraSolrResults {
       $count++;
     }
 
-    $output .= '<table class="islandora_solr_search_results"><thead><tr><th>#</th>';
-    foreach($fields as $field) {
-      $output .= '<th>'.$field.'</th>';
-    }
-    $output .= '</tr></thead>';
-    $output .= '<tbody>';
+    $header = $fields;
+    array_unshift($header,'#');
+    
+    $rows = array();
+    $row = 0;
+
     foreach ($values as $num => $val_array) {
       unset($rowclass);
-      $rowclass[] = ( $num%2 ? 'even' : 'odd' );
-      if( $num == 0 ) $rowclass[] = 'first';
-      $output .= '<tr class="'. implode(" ",$rowclass) .'">';
       $result_num = $recordStart + $num + 1;
-      $output .= '<th>'. (isset($val_array['PID']) ? l($result_num,$base_url.'/fedora/repository/'.$val_array['PID']) : $result_num) .'</th>';
+      $rows[$row][] = array(
+        'data' => (isset($val_array['PID']) ? l($result_num,'fedora/repository/'.$val_array['PID']) : $result_num),
+        'header' => true,
+      );
       foreach ($fields as $field) {
         if (!empty ($val_array[$field])) {
-          $output .= '<td>'.$val_array[$field].'</td>';
+          $rows[$row][] = $val_array[$field];
         } else {
-          $output .= '<td></td>';
+          $rows[$row][] = '';
         }
       }
-      $output .= '</tr>';
+      $row++;
     }
-    $output .= '</tbody>';
-    $output .= '</table>';
+
+    $output .= theme_table($header,$rows,array('class'=>'islandora_solr_search_results_table'));
 
     if( variable_get('islandora_solr_search_debug_mode', 0) ) { // debug dump
       $results_r .= "<pre>Results: ".print_r($results,true)."</pre>";
