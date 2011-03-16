@@ -327,7 +327,6 @@ class Apache_Solr_Service
 		}
 
 		//$http_response_header is set by file_get_contents
-		#drupal_set_message("<pre>$url&indent=on&debugQuery=true</pre>)";
 		$response = new Apache_Solr_Response(@file_get_contents($url, false, $this->_getContext), $http_response_header, $this->_createDocuments, $this->_collapseSingleValueArrays);
 
 		if ($response->getHttpStatus() != 200)

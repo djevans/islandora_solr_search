@@ -8,7 +8,7 @@ function islandora_solr_admin_settings() {
 
   //checks for existence of PHP Solr client.
 
-  module_load_include('php', 'islandora_solr_search', 'Solr/Service');
+  module_load_include('php', 'islandora_solr_search', 'SolrPhpClient/Apache/Solr/Service');
   if (!class_exists(Apache_Solr_Service)) {
     drupal_set_message("This module requires the " . l('Apache Solr php client', 'http://code.google.com/p/solr-php-client') . '.
       Please install the client directory in the root directory of this module before continuing.');
