@@ -4,6 +4,7 @@
  * contains methods to search solr and display results.  depends on Apache_Solr_Php client.
  */
 
+module_load_include('inc', 'islandora_solr_search', 'IslandoraSolrResults');
 
 /**
  * Extention of IslandoraSolrResults for templating purposes.
