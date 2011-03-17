@@ -71,3 +71,6 @@ table.islandora_solr_search_results_table tr td
 .islandora_solr_search_facet .plusminus {
   float:right;
 }
+html.js .refresh-button {
+  display: none;
+}

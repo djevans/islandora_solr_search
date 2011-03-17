@@ -63,6 +63,7 @@ class IslandoraSolrResults {
     $classFileName = $classFileInfo['filename'];
     $classFileType = $classFileInfo['extension'];
     module_load_include($classFileType, $configs[0], $classFileName);
+
     $solrClass = $configs[2];
     $solrFunction = $configs[3];
     $islandora_solr_page_number = $startPage;
@@ -158,6 +159,7 @@ class IslandoraSolrResults {
   }
 
 //default implementation of display results can be changed in the blocks config
+
   function displayResults($results){
     $items = array();
     $type = "ol";
@@ -288,6 +290,7 @@ class IslandoraSolrResults {
       }
     }
 
+
     //////////////////////////////////////////////////////////////////////////////
     // Here we will build links to remove currently enforced facet filters ...  //
     //////////////////////////////////////////////////////////////////////////////
@@ -371,19 +374,22 @@ class IslandoraSolrResults {
     // Zac removed the quotation mark and whitespace from this list.
     // a) Spaces in our search strings don't need escaping
     // b) We want to allow users to use quotation marks to indicate multi-word phrases
+
     $pattern = '/(\+|-|&&|\|\||!|\(|\)|\{|}|\[|]|\^|~|\*|\?|:|\\\)/';
     $replace = '\\\$1';
 
     return preg_replace($pattern, $replace, $value);
   }
 
- //escape characters in field names of facets
-  function solr_escape($facets){
+  //escape characters in field names of facets
+  function solr_escape($facets) {
     $returnFacets = array();
-    foreach ($facets as $facet){
-      $tmp = substr($facet,0,strpos($facet,':"'));
+    foreach ($facets as $facet) {
+      $tmp = substr($facet, 0, strpos($facet, ':"'));
       $tmp = $this->lesser_escape(trim($tmp));
+
       $returnFacets[] = $tmp . substr($facet,strpos($facet,':"'),strlen($facet));
+
     }
     return $returnFacets;
   }
