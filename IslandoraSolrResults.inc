@@ -314,8 +314,6 @@ class IslandoraSolrResults {
     // Here we will build links to remove currently enforced facet filters ...  //
     //////////////////////////////////////////////////////////////////////////////
     $filters = explode(IslandoraSolrResults::$facetSeparator, $islandora_fq);
-
-    $facet_output .= theme_item_list($list_items, $list_title, $list_type, $list_attributes);
     if (!empty($filters) && $islandora_fq != '-') {
       $filter_output = null;
 
