@@ -57,7 +57,8 @@ class IslandoraSolrResults {
   function searchAndDisplay($query, $fq=null, $dismax=null) {
     $startPage = isset($_GET['page']) ? $_GET['page'] : 0;
     $limit = variable_get('islandora_solr_search_num_of_results', 20);
-    global $islandora_solrQuery, $islandora_solr_page_number, $base_url, $facetArray; //used by facet block as well    $configs = explode('~', variable_get('islandora_solr_config_options','islandora_solr_search~IslandoraSolrResults.inc~IslandoraSolrResults~displayResults'));
+    global $islandora_solrQuery, $islandora_solr_page_number, $base_url, $facetArray; //used by facet block as well
+    $configs = explode('~', variable_get('islandora_solr_config_options','islandora_solr_search~IslandoraSolrResults.inc~IslandoraSolrResults~displayResults'));
     $classFileInfo = pathinfo($configs[1]);
     $classFileName = $classFileInfo['filename'];
     $classFileType = $classFileInfo['extension'];
