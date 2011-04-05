@@ -325,6 +325,9 @@ class Apache_Solr_Service
 			// use the default timeout pulled from default_socket_timeout otherwise
 			stream_context_set_option($this->_getContext, 'http', 'timeout', $this->_defaultTimeout);
 		}
+		
+		// Islandora: dump solr query address in debug mode
+		if ( variable_get('islandora_solr_search_debug_mode', 0) ) drupal_set_message(l('solr query',$url."&indent=on&debugQuery=true"));
 
 		//$http_response_header is set by file_get_contents
 		$response = new Apache_Solr_Response(@file_get_contents($url, false, $this->_getContext), $http_response_header, $this->_createDocuments, $this->_collapseSingleValueArrays);
