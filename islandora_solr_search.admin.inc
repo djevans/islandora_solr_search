@@ -7,7 +7,6 @@
 function islandora_solr_admin_settings(&$form_state) {
 
   //checks for existence of PHP Solr client.
-
   module_load_include('php', 'islandora_solr_search', 'SolrPhpClient/Apache/Solr/Service');
   if (!class_exists(Apache_Solr_Service)) {
     drupal_set_message("This module requires the " . l('Apache Solr php client', 'http://code.google.com/p/solr-php-client') . '.
@@ -43,7 +42,7 @@ function islandora_solr_admin_settings(&$form_state) {
   $form['solr_ahah_wrapper']['islandora_solr_search_block_url'] = array(
     '#type' => 'textfield',
     '#title' => t('Solr url'),
-    '#size' => 25,
+    '#size' => 40,
     '#weight' => -1,
     '#description' => t('The url of the Solr installation.  Defaults to localhost:8080/solr.'),
     '#default_value' => $solr_url,
