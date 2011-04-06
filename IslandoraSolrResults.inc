@@ -344,7 +344,7 @@ class IslandoraSolrResults {
                 '<img class="islandora_solr_add_remove_link" src="' . $base_url . '/' . drupal_get_path('module', 'islandora_solr_search') . '/images/delete.png" alt="Remove this filter">',
                 'islandora/solr/search/' . $islandora_solrQuery . '/' . $filter_disable . '/' . $islandora_defType,
                 array('html' => true)
-            ) . ' ' . $filter_name . ($exclude ? ' != ' : ' = ') . $filter_value;
+            ) . ' ' . $facetArray[$filter_name] . ($exclude ? ' != ' : ' = ') . $filter_value;
       }
     }
 
