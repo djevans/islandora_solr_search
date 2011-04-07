@@ -1,7 +1,7 @@
 <?php
 
 global $islandora_query;
-module_load_include('inc', 'islandora_solr_search','solr.admin');
+module_load_include('inc', 'islandora_solr_search', 'solr.admin');
 /**
  * @file
  * Implementation of Solr search for the Islandora fedora_search module.
@@ -20,10 +20,9 @@ function islandora_solr_search_menu() {
 
   $items['islandora/solr/process'] = array(
     'page callback' => 'update_solr_url_div',
-    'access arguments' => array('view fedora collection'), 
+    'access arguments' => array('view fedora collection'),
     'file' => 'solr.admin.inc',
     'type' => MENU_CALLBACK,
-
   );
 
   $items['admin/settings/islandora_solr_search'] = array(
@@ -119,20 +118,28 @@ function islandora_solr_search_theme() {
 }
 
 function islandora_solr_simple_search_form() {
+  global $islandora_query;
   module_load_include('inc', 'islandora_solr_search', 'IslandoraSolrResults');
   $searchClass = new IslandoraSolrResults();
   return $searchClass->build_simple_solr_form();
 }
 
-function islandora_solr_simple_search_form_validate($form, &$form_state) {
-  if ($form_state['values']['islandora_simple_search_query'] == '') {
-    form_set_error('islandora_simple_search_query', t('The Search field cannot be empty.'));
+function islandora_solr_search_block_form_validate($form, &$form_state) {
+
+  $repeat = variable_get('islandora_solr_search_block_repeat', t('3'));
+  $found = FALSE;
+  for ($fieldNum = 1; $fieldNum <= $repeat; $fieldNum++) {
+    if ($form_state['values']["fedora_terms$fieldNum"]) {
+      $found = TRUE;
+    }
+  }
+  if (!$found) {
+    form_set_error('edit_fedora_terms1', t('Please enter search term.'));
   }
 }
 
 function islandora_solr_simple_search_form_submit($form, &$form_state) {
   $searchString = $form_state['values']['islandora_simple_search_query'];
-  //$searchString = drupal_urlencode($searchString);
   $searchString = htmlspecialchars(drupal_urlencode($searchString), ENT_QUOTES, 'utf-8', false);
   $searchString = str_replace('/', '~slsh~', $searchString); //replace the slash so url doesn't break
   drupal_goto("islandora/solr/search/$searchString/-/dismax");
@@ -164,23 +171,27 @@ function islandora_solr_search($query, $startPage = 1, $fq=null, $dismax=null) {
   return $searchClass->searchAndDisplay($query, $startPage, $fq, $dismax);
 }
 
-
-
 function islandora_solr_search_block_form_submit($form, &$form_state) {
   require_once(drupal_get_path('module', 'islandora_solr_search') . '/IslandoraSolrResults.inc');
   $type_id = trim($form_state['values']['type']);
   $repeat = variable_get('islandora_solr_search_block_repeat', t('3'));
-  $searchString = trim($form_state['values']['type1']) . ':(' . IslandoraSolrResults::lesser_escape(trim($form_state['values']['fedora_terms1'])) . ')';
-  if ($form_state['values']['fedora_terms2'] != '') {
-    $searchString .=' ' . trim($form_state['values']['andor1']) . ' ' . trim($form_state['values']['type2']) . ':(' . IslandoraSolrResults::lesser_escape(trim($form_state['values']['fedora_terms2'])) . ')';
-  }
-  if ($repeat > 2 && $repeat < 9) {
-    for ($i = 3; $i < $repeat + 1; $i++) {
-      $t = $i - 1;
-      if ($form_state['values']["fedora_terms$i"] != '') {
-        $searchString .= ' ' . trim($form_state['values']["andor$t"]) . ' ' . trim($form_state['values']["type$i"]) . ':(' . IslandoraSolrResults::lesser_escape(trim($form_state['values']["fedora_terms$i"])) . ')';
-      }
+  $fedora_terms = array();
+  $types = array();
+  $booleans = array();
+
+  for ($fieldNum = 1; $fieldNum <= $repeat; $fieldNum++) {
+    if ($form_state['values']["fedora_terms$fieldNum"]) {
+      $types[] = trim($form_state['values']["type$fieldNum"]);
+      $fedora_terms[] = IslandoraSolrResults::lesser_escape(trim($form_state['values']["fedora_terms$fieldNum"]));
     }
+    $next = $fieldNum + 1;
+    if ($form_state['values']["fedora_terms$next"] && $form_state['values']["fedora_terms$fieldNum"]) {
+      $booleans[] = trim($form_state['values']["andor$fieldNum"]);
+    }
+  }
+
+  for ($iteration = 0; $iteration < count($fedora_terms); $iteration++) {
+    $searchString .= $types[$iteration] . ":" . $fedora_terms[$iteration] . " " . $booleans[$iteration] . " ";
   }
   $searchString = htmlspecialchars(drupal_urlencode($searchString), ENT_QUOTES, 'utf-8', false);
   $searchString = str_replace('/', '~slsh~', $searchString); //replace the slash so url doesn't break

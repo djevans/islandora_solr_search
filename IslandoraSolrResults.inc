@@ -4,7 +4,6 @@
  * contains methods to search solr and display results.  depends on Apache_Solr_Php client.
  */
 
-
 /**
  * Initialize a pager for theme('pager') without running an SQL query.
  *
@@ -33,7 +32,7 @@ function islandora_solr_search_pager_init($total, $limit = 10, $element = 0) {
   // We calculate the total of pages as ceil(items / limit).
   $pager_total_items[$element] = $total;
   $pager_total[$element] = ceil($pager_total_items[$element] / $limit);
-  $pager_page_array[$element] = max(0, min((int)$pager_page_array[$element], ((int)$pager_total[$element]) - 1));
+  $pager_page_array[$element] = max(0, min((int) $pager_page_array[$element], ((int) $pager_total[$element]) - 1));
 
   // return the current position
   return $pager_page_array[$element];
@@ -41,15 +40,16 @@ function islandora_solr_search_pager_init($total, $limit = 10, $element = 0) {
 
 class IslandoraSolrResults {
 
-  static $facetSeparator = '~';//used to separate facets in url
-  static $slashReplacement = '~slsh~';// a pattern used to replace / in url's the slash breaks drupal clean url's
+  static $facetSeparator = '~'; //used to separate facets in url
+  static $slashReplacement = '~slsh~'; // a pattern used to replace / in url's the slash breaks drupal clean url's
   public static $SEARCH_CLASS_ADVANCED_SEARCH_NUMBER_FIELDS = 5;
+
   function IslandoraSolrResults() {
     module_load_include('php', 'islandora_solr_search', 'Solr/Service');
   }
- 
-  function parseQuery($solr, $query,$dismax=false) {
-    $query = str_replace(IslandoraSolrResults::$slashReplacement,'/',$query);   //can't have a slash in the url breaks drupal clean urls
+
+  function parseQuery($solr, $query, $dismax=false) {
+    $query = str_replace(IslandoraSolrResults::$slashReplacement, '/', $query);   //can't have a slash in the url breaks drupal clean urls
     return $query;
   }
 
@@ -58,7 +58,7 @@ class IslandoraSolrResults {
     $startPage = isset($_GET['page']) ? $_GET['page'] : 0;
     $limit = variable_get('islandora_solr_search_num_of_results', 20);
     global $islandora_solrQuery, $islandora_solr_page_number, $base_url, $facetArray; //used by facet block as well
-    $configs = explode('~', variable_get('islandora_solr_config_options','islandora_solr_search~IslandoraSolrResults.inc~IslandoraSolrResults~displayResults'));
+    $configs = explode('~', variable_get('islandora_solr_config_options', 'islandora_solr_search~IslandoraSolrResults.inc~IslandoraSolrResults~displayResults'));
     $classFileInfo = pathinfo($configs[1]);
     $classFileName = $classFileInfo['filename'];
     $classFileType = $classFileInfo['extension'];
@@ -78,15 +78,15 @@ class IslandoraSolrResults {
     $facetFields = '';
     $rawFacetVals = variable_get("islandora_solr_search_block_facets", 'dc.subject,dc.type');
     $lines = explode(',', $rawFacetVals);
-    foreach($lines as $line){
+    foreach ($lines as $line) {
       $lineArray = explode('~', $line);
       $key = trim($lineArray[0]);
       $value = trim($lineArray[1]);
-      if(!$value){
+      if (!$value) {
         $value = $key;
       }
       $facetArray[$key] = $value;
-      if($facetFields){
+      if ($facetFields) {
         $facetFields .= ",";
       }
       $facetFields .= $key;
@@ -101,7 +101,7 @@ class IslandoraSolrResults {
       'facet.mincount' => $facetMinCount,
       'facet.limit' => $facetlimit,
       'qt' => $requestHandler,
-      'facet.field' => explode(',',$facetFields), //comma separated list configured in the block config
+      'facet.field' => explode(',', $facetFields), //comma separated list configured in the block config
     );
 
 
@@ -115,7 +115,7 @@ class IslandoraSolrResults {
       #if(strpos($fq,'-')===0) {//remove the requested facet from the list
       #  $fq = substr($fq,strpos($fq,IslandoraSolrResults::$facetSeparator)+1);
       #}
-      $fqs = $this->csv_explode(IslandoraSolrResults::$facetSeparator,$fq,'"',true);//to filter by more then one facet we will separate them by~ for nowseparate them by~ for now
+      $fqs = $this->csv_explode(IslandoraSolrResults::$facetSeparator, $fq, '"', true); //to filter by more then one facet we will separate them by~ for nowseparate them by~ for now
       $additionalParams['fq'] = $fqs;
       $islandora_fq = str_replace('/', IslandoraSolrResults::$slashReplacement, $fq); //remove the slash here as we will be using this in url's
     }
@@ -152,8 +152,9 @@ class IslandoraSolrResults {
 
     if (class_exists($solrClass)) {
       $implementation = new $solrClass();
-    } else {
-      drupal_set_message(t('Error loading solr results class. Class '.$solrClass.' could not be loaded. Check the Islandora Solr search blocks configuration.'), 'error');
+    }
+    else {
+      drupal_set_message(t('Error loading solr results class. Class ' . $solrClass . ' could not be loaded. Check the Islandora Solr search blocks configuration.'), 'error');
       return ' ';
     }
 
@@ -162,7 +163,8 @@ class IslandoraSolrResults {
       if (variable_get('islandora_solr_search_debug_mode', 0)) { // debug dump
         drupal_set_message('Params: <br/><pre>' . print_r($additionalParams, true) . '</pre>', 'status');
       }
-    } else {
+    }
+    else {
       drupal_set_message(t('Error loading solr results class. Could not find the specified method.  Check the Islandora Solr search blocks configuration.'), 'error');
     }
 
@@ -176,58 +178,59 @@ class IslandoraSolrResults {
 
 //default implementation of display results can be changed in the blocks config
 
-  function displayResults($results){
+  function displayResults($results) {
     $items = array();
     $type = "ol";
     $title = null;
     $recordStart = $results->response->start;
-    
+
     global $base_url;
-    if(empty($results)) {
+    if (empty($results)) {
       return "no results";
     }
 
-    foreach($results->response->docs as $doc) {
+    foreach ($results->response->docs as $doc) {
       $rows = array();
       $row = 0;
 
-      foreach($doc as $field => $value) {
+      foreach ($doc as $field => $value) {
         $rows[$row][] = array(
           'data' => $field,
           'header' => true,
         );
-        if(is_array($value)) {
-          $value = implode(", ",$value);
+        if (is_array($value)) {
+          $value = implode(", ", $value);
         }
 
-        if($field=='PID') {
-          $l = l($value,'fedora/repository/'.htmlspecialchars($value,ENT_QUOTES,'utf-8'));
+        if ($field == 'PID') {
+          $l = l($value, 'fedora/repository/' . htmlspecialchars($value, ENT_QUOTES, 'utf-8'));
           $rows[$row][] = $l;
-        }else {
+        }
+        else {
           $rows[$row][] = $value;
         }
         $row++;
       }
-      $items[] = theme_table(null,$rows,array('class'=>'islandora_solr_search_results_object'));
+      $items[] = theme_table(null, $rows, array('class' => 'islandora_solr_search_results_object'));
     }
-    $output .= theme_item_list($items, $title, $type, array('class'=>'stuff','start'=>($recordStart + 1)));
-    if( variable_get('islandora_solr_search_debug_mode', 0) ) { // debug dump
-      $results_r .= "<pre>Results: ".print_r($results,true)."</pre>";
+    $output .= theme_item_list($items, $title, $type, array('class' => 'stuff', 'start' => ($recordStart + 1)));
+    if (variable_get('islandora_solr_search_debug_mode', 0)) { // debug dump
+      $results_r .= "<pre>Results: " . print_r($results, true) . "</pre>";
       $fieldset_r = array(
-        '#title' => t("Raw Results"),                                                                                                                                             
+        '#title' => t("Raw Results"),
         '#collapsible' => TRUE,
         '#collapsed' => TRUE,
         '#value' => $results_r,
-        );
+      );
       $output .= theme('fieldset', $fieldset_r);
     }
     return $output;
   }
-  
+
 //called from the islandora facet block
 
   function displayFacets() {
-    global $islandora_facets, $islandora_defType, $islandora_solrQuery, $base_url, $islandora_fq,$facetArray;
+    global $islandora_facets, $islandora_defType, $islandora_solrQuery, $base_url, $islandora_fq, $facetArray;
     if (strlen(trim($islandora_solrQuery))) {
 
       // Variables to build a drupal-ish unordered list
@@ -367,19 +370,16 @@ class IslandoraSolrResults {
     return $output;
   }
 
-
-
-
-
 //a better explode method allows quotes in the returned strings.  taken from the php.net site
   function csv_explode($delim=',', $str, $enclose='"', $preserve=false) {
     $resArr = array();
     $n = 0;
     $expEncArr = explode($enclose, $str);
-    foreach($expEncArr as $EncItem) {
-      if($n++%2) {
-        array_push($resArr, array_pop($resArr) . ($preserve?$enclose:'') . $EncItem.($preserve?$enclose:''));
-      }else {
+    foreach ($expEncArr as $EncItem) {
+      if ($n++ % 2) {
+        array_push($resArr, array_pop($resArr) . ($preserve ? $enclose : '') . $EncItem . ($preserve ? $enclose : ''));
+      }
+      else {
         $expDelArr = explode($delim, $EncItem);
         array_push($resArr, array_pop($resArr) . array_shift($expDelArr));
         $resArr = array_merge($resArr, $expDelArr);
@@ -388,9 +388,8 @@ class IslandoraSolrResults {
     return $resArr;
   }
 
- //copied from apache solr service and added space as a value to escape.  We are using this to escape the field being searched not the text being searched for so we need both.
-  public function lesser_escape($value)
-  {
+  //copied from apache solr service and added space as a value to escape.  We are using this to escape the field being searched not the text being searched for so we need both.
+  public function lesser_escape($value) {
     //list taken from http://lucene.apache.org/java/docs/queryparsersyntax.html#Escaping%20Special%20Characters
     // Zac removed the quotation mark and whitespace from this list.
     // a) Spaces in our search strings don't need escaping
@@ -409,19 +408,27 @@ class IslandoraSolrResults {
       $tmp = substr($facet, 0, strpos($facet, ':"'));
       $tmp = $this->lesser_escape(trim($tmp));
 
-      $returnFacets[] = $tmp . substr($facet,strpos($facet,':"'),strlen($facet));
-
+      $returnFacets[] = $tmp . substr($facet, strpos($facet, ':"'), strlen($facet));
     }
     return $returnFacets;
   }
 
   function build_solr_search_form($repeat = NULL, $pathToSearchTerms = NULL, $query = NULL) {
-    $types = $this->get_search_terms_array(NULL, 'solrSearchTerms.xml');
+    $types = array();
+    $terms = trim(variable_get('islandora_solr_searchterms', 'dc.title ~ Title,dc.subject ~ Subject'));
+    $termsArray = preg_split('/[\n]/', $terms);
+    foreach ($termsArray as $term) {
+      $vals = split('~', $term);
+      if (!$vals[1]) {
+        $vals[1] = $vals[0];
+      }
+      $types[trim($vals[0])] = trim($vals[1]);
+    }
     $queryArray = NULL;
     if (isset($query)) {
-      $queryArray = preg_split( '/( OR | AND )/', $query, 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
-      foreach( $queryArray as $key => $val ) {
-        if ( $val === ' OR ' || $val === ' AND ' ) {
+      $queryArray = preg_split('/( OR | AND )/', $query, 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+      foreach ($queryArray as $key => $val) {
+        if ($val === ' OR ' || $val === ' AND ') {
           $andOrs[] = trim($val); // that is, just 'OR' or 'AND'
           unset($queryArray[$key]); //remove that from the array
         }
@@ -430,8 +437,8 @@ class IslandoraSolrResults {
     }
 
     $andOrArray = array(
-            'AND' => 'and',
-            'OR' => 'or',
+      'AND' => 'and',
+      'OR' => 'or',
     );
     $form = array();
 
@@ -440,63 +447,65 @@ class IslandoraSolrResults {
     }
     $var0 = explode(':', $queryArray[0]);
     $form['search_type']['type1'] = array(
-            '#title' => t(''),
-            '#type' => 'select',
-            '#options' => $types,
-            '#default_value' => trim($var0[0])
+      '#title' => t(''),
+      '#type' => 'select',
+      '#options' => $types,
+      '#default_value' => trim($var0[0])
     );
     $form['fedora_terms1'] = array(
-            '#size' => '24',
-            '#type' => 'textfield',
-            '#title' => t(''),
-            '#required' => TRUE,
-            '#default_value' => (count($var0) >= 2 ? trim($var0[1],'()') : ''),
+      '#size' => '24',
+      '#type' => 'textfield',
+      '#title' => t(''),
+      '#default_value' => (count($var0) >= 2 ? trim($var0[1], '()') : ''),
     );
-    if ($repeat>1 && $repeat < 9) { //don't want less then 2 or more then 9
+    if ($repeat > 1 && $repeat < 9) { //don't want less then 2 or more then 9
       for ($i = 2; $i < $repeat + 1; $i++) {
         $t = $i - 1;
         $j = $i - 2;
         $andorj = ( isset($andOrs[$j]) ? $andOrs[$j] : 'AND' );
         $field_and_term = explode(':', $queryArray[$t]);
         $form["andor$t"] = array(
-                '#title' => t(''),
-                '#type' => 'select',
-                '#default_value' => $andorj,
-                '#options' => $andOrArray
+          '#title' => t(''),
+          '#type' => 'select',
+          '#default_value' => $andorj,
+          '#options' => $andOrArray
         );
         $form['search_type']["type$i"] = array(
-                '#title' => t(''),
-                '#type' => 'select',
-                '#options' => $types,
-                '#default_value' => trim($field_and_term[0])
+          '#title' => t(''),
+          '#type' => 'select',
+          '#options' => $types,
+          '#default_value' => trim($field_and_term[0])
         );
         $form["fedora_terms$i"] = array(
-                '#size' => '24',
-                '#type' => 'textfield',
-                '#title' => t(''),
-                '#default_value' => (count($field_and_term) >= 2 ? trim($field_and_term[1],'()') : ''),
+          '#size' => '24',
+          '#type' => 'textfield',
+          '#title' => t(''),
+          '#default_value' => (count($field_and_term) >= 2 ? trim($field_and_term[1], '()') : ''),
         );
       }
     }
 
     $form['submit'] = array(
-            '#type' => 'submit',
-            '#value' => t('search')
+      '#type' => 'submit',
+      '#value' => t('search')
     );
     return $form;
   }
 
   function build_simple_solr_form() {
-    //$form = array();
+    global $islandora_query;
+    if(!strpos($islandora_query, ':')){
+      $string = $islandora_query;
+    }
     $form["islandora_simple_search_query"] = array(
-                '#size' => '24%',
-                '#type' => 'textfield',
-                '#title' => t(''),
-               // '#default_value' => (count($field_and_term) >= 2 ? trim($field_and_term[1]) : ''),
-        );
+      '#size' => '24%',
+      '#type' => 'textfield',
+      '#title' => t(''),
+      '#default_value' => $string,
+    );
     $form['submit'] = array(
-            '#type' => 'submit',
-            '#value' => t('search')
+      '#type' => 'submit',
+      '#value' => t('search')
     );
     return $form;
   }
@@ -546,7 +555,8 @@ class IslandoraSolrResults {
         if ($field == 'PID') {
           $pidValue = $value;
           $output.='<td><a href="' . $base_url . '/fedora/repository/' . htmlspecialchars($value, ENT_QUOTES, 'utf-8') . '">' . $value . '</td></tr>';
-        } else {
+        }
+        else {
           $output .= '<td>' . $value . '</td></tr>';
         }
       }
@@ -557,7 +567,6 @@ class IslandoraSolrResults {
     return $output;
   }
 
- 
 //this function will be removed.  class has been refactored so we only need the display loop.  leaving here until mnpl is updated.
   function mnplSearchAndDisplay($query, $startPage=1, $fq=null, $dismax=null) {
     $limit = variable_get('islandora_solr_search_num_of_results', 20);
@@ -577,11 +586,11 @@ class IslandoraSolrResults {
     $facetMinCount = variable_get('islandora_solr_search_block_facet_min_count', '2');
     $requestHandler = variable_get("islandora_solr_search_block_request_handler", t("standard"));
     $additionalParams = array(
-        'facet' => 'true',
-        'facet.mincount' => $facetMinCount,
-        'facet.limit' => $facetlimit,
-        'qt' => $requestHandler,
-        'facet.field' => explode(',', variable_get("islandora_solr_search_block_facets", 'dc.subject,dc.type')), //comma separated list configured in the block config
+      'facet' => 'true',
+      'facet.mincount' => $facetMinCount,
+      'facet.limit' => $facetlimit,
+      'qt' => $requestHandler,
+      'facet.field' => explode(',', variable_get("islandora_solr_search_block_facets", 'dc.subject,dc.type')), //comma separated list configured in the block config
     );
     global $islandora_fq;
     if ($fq != NULL && $fq != '-') {
@@ -642,11 +651,14 @@ class IslandoraSolrResults {
         }
         if ($field == 'PID') {
           $pidValue = $value;
-        } else if ($field == 'genus') {
+        }
+        else if ($field == 'genus') {
           $genusValue = $value;
-        } else if ($field == 'specimen.species') {
+        }
+        else if ($field == 'specimen.species') {
           $speciesValue = $value;
-        } else if ($field == 'lab_id') {
+        }
+        else if ($field == 'lab_id') {
           $keyValue = $value;
         }
       }
@@ -655,11 +667,13 @@ class IslandoraSolrResults {
         $pidForImage = substr($pidValue, 0, $index);
         $pidForImage = str_replace('fraction', 'specimen', $pidForImage);
         $typeString = 'Fraction';
-      } else if ($index = (strpos($pidValue, '-C-', TRUE))) {
+      }
+      else if ($index = (strpos($pidValue, '-C-', TRUE))) {
         $pidForImage = strstr($pidValue, 0, $index);
         $pidForImage = str_replace('compound', 'specimen', $pidForImage);
         $typeString = 'Compound';
-      } else {
+      }
+      else {
         $pidForImage = $pidValue;
       }
       $output.='<img src="' . $base_url . '/fedora/repository/' . htmlspecialchars($pidForImage, ENT_QUOTES, 'utf-8') . '/TN"/><a href="' . $base_url . '/fedora/repository/' . htmlspecialchars($pidValue, ENT_QUOTES, 'utf-8') . '"><strong>' . $typeString . '</strong>' . $keyValue . ': ' . $genusValue . ' ' . $speciesValue . '</a> ';
@@ -672,27 +686,6 @@ class IslandoraSolrResults {
     global $islandora_facets; //make facets available to the islandora facet block
     $islandora_facets = $results->facet_counts->facet_fields;
     return $output;
-  }
-
-  function get_search_terms_array($path = NULL, $file = NULL) {
-    if (!isset($path)) {
-      $path = drupal_get_path('module', 'islandora_solr_search');
-    }
-    $xmlDoc = new DomDocument();
-    if (!isset($file)) {
-      $file = 'searchTerms.xml';
-    }
-    $xmlDoc->load($path . '/' . $file);
-    $nodeList = $xmlDoc->getElementsByTagName('term');
-    $types = array();
-    for ($i = 0; $i < $nodeList->length; $i++) {
-      $field = $nodeList->item($i)->getElementsByTagName('field');
-      $value = $nodeList->item($i)->getElementsByTagName('value');
-      $fieldValue = $field->item(0)->nodeValue;
-      $valueValue = $value->item(0)->nodeValue;
-      $types["$fieldValue"] = "$valueValue";
-    }
-    return $types;
   }
 
 }
