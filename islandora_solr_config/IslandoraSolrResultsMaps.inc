@@ -16,7 +16,7 @@ class IslandoraSolrResultsMaps extends IslandoraSolrResults {
   static $slashReplacement = '~slsh~';// a pattern used to replace / in url's the slash breaks drupal clean url's
   public static $SEARCH_CLASS_ADVANCED_SEARCH_NUMBER_FIELDS = 5;
   function IslandoraSolrResults() {
-    module_load_include('php', 'islandora_solr_search', 'Solr/Service');
+    module_load_include('php', 'islandora_solr_search', 'SolrPhpClient/Apache/Solr/Service');
   }
 
   /**
