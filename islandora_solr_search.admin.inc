@@ -71,7 +71,7 @@ function islandora_solr_admin_settings(&$form_state) {
     '#title' => t('Request Handler'),
     '#options' => $handlers,
     '#description' => t('Request handlers defined by !config', array('!config' => l('solrconfig.xml', 'http://wiki.apache.org/solr/SolrConfigXml' ))),
-    '#default_value' => variable_get('islandora_solr_search_block_request_handler', t('standard')),
+    '#default_value' => variable_get('islandora_solr_search_block_request_handler', 'standard'),
   );
 
   $form['islandora_solr_config_options'] = array(

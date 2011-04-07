@@ -44,7 +44,7 @@ class IslandoraSolrResults {
     $query = $this->parseQuery($solr, $query, $dismax, $solr); //fix the query as some characters will break the search : and / slash are examples
     $facetlimit = variable_get('islandora_solr_search_block_facet_limit', '12');
     $facetMinCount = variable_get('islandora_solr_search_block_facet_min_count', '2');
-    $requestHandler = variable_get("islandora_solr_search_block_request_handler", t("standard"));
+    $requestHandler = variable_get("islandora_solr_search_block_request_handler", "standard");
     $additionalParams = array(
       'facet' => 'true',
       'facet.mincount' => $facetMinCount,
@@ -484,7 +484,7 @@ class IslandoraSolrResults {
     $query = $this->parseQuery($solr, $query, $dismax, $solr); //fix the query as some characters will break the search : and / slash are examples
     $facetlimit = variable_get('islandora_solr_search_block_facet_limit', '12');
     $facetMinCount = variable_get('islandora_solr_search_block_facet_min_count', '2');
-    $requestHandler = variable_get("islandora_solr_search_block_request_handler", t("standard"));
+    $requestHandler = variable_get("islandora_solr_search_block_request_handler", "standard");
     $additionalParams = array(
         'facet' => 'true',
         'facet.mincount' => $facetMinCount,
