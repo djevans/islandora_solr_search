@@ -54,6 +54,8 @@ class IslandoraSolrResults {
   }
 
   //default implementation for solr search.  You can configure others in the block config settings
+
+
   function searchAndDisplay($query, $fq=null, $dismax=null) {
     $startPage = isset($_GET['page']) ? $_GET['page'] : 0;
     $limit = variable_get('islandora_solr_search_num_of_results', 20);
@@ -77,7 +79,7 @@ class IslandoraSolrResults {
     $facetArray = array();
     $facetFields = '';
     $rawFacetVals = variable_get("islandora_solr_search_block_facets", 'dc.subject,dc.type');
-    $lines = explode(',', $rawFacetVals);
+    $lines = preg_split('/[,|\n|\r]/', $rawFacetVals);
     foreach ($lines as $line) {
       $lineArray = explode('~', $line);
       $key = trim($lineArray[0]);
@@ -495,13 +497,13 @@ class IslandoraSolrResults {
   function build_simple_solr_form() {
     global $islandora_query;
     if(!strpos($islandora_query, ':')){
-      $string = $islandora_query;
+      $default = $islandora_query;
     }
     $form["islandora_simple_search_query"] = array(
       '#size' => '24%',
       '#type' => 'textfield',
       '#title' => t(''),
-      '#default_value' => $string,
+      '#default_value' => $default,
     );
     $form['submit'] = array(
       '#type' => 'submit',
