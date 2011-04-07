@@ -31,6 +31,37 @@ function islandora_solr_config_form_islandora_solr_admin_settings_alter(&$form, 
   $form['islandora_solr_config_options']['#options'] = $config_options;
 }
 
+/**
+ * Implements hook_islandora_solr_search_primary_display()
+ */
+function islandora_solr_config_islandora_solr_search_primary_display() {
+  return array(
+    // 'machien-name' = array(
+    //   'name' => 'Human Readable Name',
+    //   'module' => 'module_name',
+    //   'file' => 'FileName.inc',
+    //   'class' => 'ClassName',
+    //   'function' => 'function_name',
+    //   'description' => 'A description of the display profile',
+    // );
+    'simple_table' => array(
+      'name' => t('Simple Table'),
+      'module' => 'islandora_solr_config',
+      'file' => 'IslandoraSolrResultsTable.inc',
+      'class' => "IslandoraSolrResultsTable",
+      'function' => "displayResults",
+      'description' => t("A simple tabular output"),
+    ),
+    'maps' => array(
+      'name' => t('Maps'),
+      'module' => 'islandora_solr_config',
+      'file' => 'IslandoraSolrResultsTable.inc',
+      'class' => "IslandoraSolrResultsTable",
+      'function' => "displayResults",
+      'description' => t('A tabular output for maps. Depends upon the existence of a TN datastream in fedora objects returned as results.')
+    ),
+  );
+}
 
 /**
  * Implementation of hook_help()

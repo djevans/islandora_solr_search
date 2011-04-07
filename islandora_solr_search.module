@@ -119,6 +119,30 @@ function islandora_solr_search_theme() {
   );
 }
 
+/**
+ * Implements hook_islandora_solr_search_primary_display()
+ */
+function islandora_solr_search_islandora_solr_search_primary_display() {
+  return array(
+    // 'machine-name' = array(
+    //   'name' => 'Human Readable Name',
+    //   'module' => 'module_name',
+    //   'file' => 'FileName.inc',
+    //   'class' => 'ClassName',
+    //   'function' => 'function_name',
+    //   'description' => 'A description of the display profile',
+    // );
+    'default' => array(
+      'name' => t('Fields (default)'),
+      'module' => 'islandora_solr_search',
+      'file' => 'IslandoraSolrResults.inc',
+      'class' => "IslandoraSolrResults",
+      'function' => "displayResults",
+      'description' => t("A simple output."),
+    ),
+  );
+}
+
 function islandora_solr_simple_search_form() {
   module_load_include('inc', 'islandora_solr_search', 'IslandoraSolrResults');
   $searchClass = new IslandoraSolrResults();

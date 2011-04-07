@@ -127,6 +127,23 @@ function islandora_solr_admin_settings(&$form_state) {
     '#description' => t('Dumps solr query info to the screen for testing purposes.'),
   );
 
+  $profiles = module_invoke_all("islandora_solr_search_primary_display");
+  uksort($profiles, "sort_default_first");
+  foreach( $profiles as $machine_name => $profile ) {
+    $islandora_solr_search_primary_display_options[$machine_name] = $profile['name'];
+  }
+
+//  if( variable_get('islandora_solr_search_debug_mode', 0)) ddump($profiles);
+  if( !empty( $islandora_solr_search_primary_display_options )) {
+    $form['islandora_solr_search_primary_display'] = array(
+      '#type' => 'radios',
+      '#title' => t('Default Display Profile'),
+      '#options' => $islandora_solr_search_primary_display_options,
+      '#default_value' => variable_get( 'islandora_solr_search_primary_display', 'default' ),
+      '#description' => "Preferred normal display profile for search results.  These may be provided by third-party modules. ",
+    );
+  }
+
   $form['buttons']['submit'] = array('#type' => 'submit', '#value' => t('Save Solr Configuration'));
   $form['buttons']['reset'] = array('#type' => 'submit', '#value' => t('Reset to defaults'));
 
@@ -255,9 +272,26 @@ function solr_settings_form_submit($form, &$form_state) {
   drupal_rebuild_theme_registry();
 }
 
+
 function solr_admin_refresh($form, &$form_state) {
   $values = $form_state['values'];
   unset($form_state['submit_handlers']);
   form_execute_handlers('submit', $form, $form_state);
   $form_state['rebuild'] = TRUE;
+}
+
+/**
+ * Function sort_default_first
+ * 
+ * Description: sorts two values by strcasecmp, with the special begaviour that 
+ * the value "default" sorts before any other value.
+ * 
+ * @param <string> $a
+ * @param <string> $b
+ * @return <int> 
+ */
+function sort_default_first($a, $b) {
+  if( !strcasecmp($a, 'default' )) return -1;
+  if( !strcasecmp($b, 'default' )) return 1;
+  return strcasecmp($a,$b);
 }
