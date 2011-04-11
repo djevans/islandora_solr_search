@@ -32,9 +32,9 @@ function islandora_solr_config_form_islandora_solr_admin_settings_alter(&$form, 
 }
 
 /**
- * Implements hook_islandora_solr_search_primary_display()
+ * Implements hook_islandora_solr_primary_display()
  */
-function islandora_solr_config_islandora_solr_search_primary_display() {
+function islandora_solr_config_islandora_solr_primary_display() {
   return array(
     // 'machien-name' = array(
     //   'name' => 'Human Readable Name',

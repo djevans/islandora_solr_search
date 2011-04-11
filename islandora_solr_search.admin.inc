@@ -127,19 +127,19 @@ function islandora_solr_admin_settings(&$form_state) {
     '#description' => t('Dumps solr query info to the screen for testing purposes.'),
   );
 
-  $profiles = module_invoke_all("islandora_solr_search_primary_display");
+  $profiles = module_invoke_all("islandora_solr_primary_display");
   uksort($profiles, "sort_default_first");
   foreach( $profiles as $machine_name => $profile ) {
-    $islandora_solr_search_primary_display_options[$machine_name] = $profile['name'];
+    $islandora_solr_primary_display_options[$machine_name] = $profile['name'];
   }
 
 //  if( variable_get('islandora_solr_search_debug_mode', 0)) ddump($profiles);
-  if( !empty( $islandora_solr_search_primary_display_options )) {
-    $form['islandora_solr_search_primary_display'] = array(
+  if( !empty( $islandora_solr_primary_display_options )) {
+    $form['islandora_solr_primary_display'] = array(
       '#type' => 'radios',
       '#title' => t('Default Display Profile'),
-      '#options' => $islandora_solr_search_primary_display_options,
-      '#default_value' => variable_get( 'islandora_solr_search_primary_display', 'default' ),
+      '#options' => $islandora_solr_primary_display_options,
+      '#default_value' => variable_get( 'islandora_solr_primary_display', 'default' ),
       '#description' => "Preferred normal display profile for search results.  These may be provided by third-party modules. ",
     );
   }

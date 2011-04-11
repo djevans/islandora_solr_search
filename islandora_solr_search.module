@@ -120,9 +120,9 @@ function islandora_solr_search_theme() {
 }
 
 /**
- * Implements hook_islandora_solr_search_primary_display()
+ * Implements hook_islandora_solr_primary_display()
  */
-function islandora_solr_search_islandora_solr_search_primary_display() {
+function islandora_solr_search_islandora_solr_primary_display() {
   return array(
     // 'machine-name' = array(
     //   'name' => 'Human Readable Name',
