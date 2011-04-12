@@ -30,9 +30,6 @@ class IslandoraSolrQueryProcessor {
     module_load_include('inc', 'islandora_solr_search', 'includes/common');
   }
 
-  /**
-   * Build vars for an Apache_Solr_Service query.
-   */
 
   //default implementation for solr search.  You can configure others in the block config settings
   function buildQuery($query, $fq=null, $dismax=null) {
@@ -133,20 +130,11 @@ class IslandoraSolrQueryProcessor {
     // this object's query parameters if they wish.
     module_invoke_all("islandora_solr_search_query_processor", &$this);
 
-//    return "";
-//
-//  }
-//
-//
-//  /**
-//   *
-//   * @global <type> $islandora_facets
-//   * @return <type>
-//   */
-//
-//  function executeQuery($query = $this->solrQuery, $) {
-//
-//    global $this->solrQuery, $base_url; //used by facet block as well
+
+    // //////////////////////////////////////////////////////////////////////////// //
+    // Right here the function should be split.  One function to execute the query, //
+    // another to set up pager variables and generate display.                      //
+    // //////////////////////////////////////////////////////////////////////////// //
 
     // This is where the query gets executed and output starts being created.
     try {
@@ -196,8 +184,13 @@ class IslandoraSolrQueryProcessor {
     return $output;
   }
 
-//default implementation of display results can be changed in the blocks config
-
+  /**
+   * Function: displayResults
+   *
+   * Description: translates a solr query result into a basic in-browser search result.
+   *
+   * @param IslandoraSolrQueryProcessor $results
+   */
   function displayResults($results){
     $items = array();
     $type = "ol";
