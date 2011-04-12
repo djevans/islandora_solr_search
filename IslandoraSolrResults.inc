@@ -462,9 +462,9 @@ class IslandoraSolrResults {
     if (empty($islandora_fq)) {
       $islandora_fq = '-';
     }
-    global $islandora_defType;
+    global $islandora_solrDefType;
     if ($dismax != NULL) {
-      $islandora_defType = $dismax;
+      $islandora_solrDefType = $dismax;
       $additionalParams['defType'] = $dismax;
     }
     $recordStart = $startPage - 1;
