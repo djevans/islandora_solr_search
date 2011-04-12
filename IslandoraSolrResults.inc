@@ -315,50 +315,6 @@ class IslandoraSolrResults {
     return $output;
   }
 
-//a better explode method allows quotes in the returned strings.  taken from the php.net site
-  function csv_explode($delim=',', $str, $enclose='"', $preserve=false) {
-    $resArr = array();
-    $n = 0;
-    $expEncArr = explode($enclose, $str);
-    foreach($expEncArr as $EncItem) {
-      if($n++%2) {
-        array_push($resArr, array_pop($resArr) . ($preserve?$enclose:'') . $EncItem.($preserve?$enclose:''));
-      }else {
-        $expDelArr = explode($delim, $EncItem);
-        array_push($resArr, array_pop($resArr) . array_shift($expDelArr));
-        $resArr = array_merge($resArr, $expDelArr);
-      }
-    }
-    return $resArr;
-  }
-
- //copied from apache solr service and added space as a value to escape.  We are using this to escape the field being searched not the text being searched for so we need both.
-  public function lesser_escape($value)
-  {
-    //list taken from http://lucene.apache.org/java/docs/queryparsersyntax.html#Escaping%20Special%20Characters
-    // Zac removed the quotation mark and whitespace from this list.
-    // a) Spaces in our search strings don't need escaping
-    // b) We want to allow users to use quotation marks to indicate multi-word phrases
-
-    $pattern = '/(\+|-|&&|\|\||!|\(|\)|\{|}|\[|]|\^|~|\*|\?|:|\\\)/';
-    $replace = '\\\$1';
-
-    return preg_replace($pattern, $replace, $value);
-  }
-
-  //escape characters in field names of facets
-  function solr_escape($facets) {
-    $returnFacets = array();
-    foreach ($facets as $facet) {
-      $tmp = substr($facet, 0, strpos($facet, ':"'));
-      $tmp = $this->lesser_escape(trim($tmp));
-
-      $returnFacets[] = $tmp . substr($facet,strpos($facet,':"'),strlen($facet));
-
-    }
-    return $returnFacets;
-  }
-
   function build_solr_search_form($repeat = NULL, $pathToSearchTerms = NULL, $query = NULL) {
     $types = $this->get_search_terms_array(NULL, 'solrSearchTerms.xml');
     $queryArray = NULL;
