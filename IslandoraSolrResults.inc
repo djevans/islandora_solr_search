@@ -13,116 +13,7 @@ class IslandoraSolrResults {
     module_load_include('php', 'islandora_solr_search', 'SolrPhpClient/Apache/Solr/Service');
     module_load_include('inc', 'islandora_solr_search', 'includes/common');
   }
- 
-  function parseQuery($solr, $query,$dismax=false) {
-    $query = str_replace(IslandoraSolrResults::$slashReplacement,'/',$query);   //can't have a slash in the url breaks drupal clean urls
-    return $query;
-  }
 
-  //default implementation for solr search.  You can configure others in the block config settings
-  function searchAndDisplay($query, $fq=null, $dismax=null) {
-    $startPage = isset($_GET['page']) ? $_GET['page'] : 0;
-    $limit = variable_get('islandora_solr_search_num_of_results', 20);
-    global $islandora_solrQuery, $islandora_solr_page_number, $base_url; //used by facet block as well
-    $configs = explode('~', variable_get('islandora_solr_config_options','islandora_solr_search~IslandoraSolrResults.inc~IslandoraSolrResults~displayResults'));
-    $classFileInfo = pathinfo($configs[1]);
-    $classFileName = $classFileInfo['filename'];
-    $classFileType = $classFileInfo['extension'];
-    module_load_include($classFileType, $configs[0], $classFileName);
-
-    $solrClass = $configs[2];
-    $solrFunction = $configs[3];
-    $islandora_solr_page_number = $startPage;
-    $islandora_solrQuery = str_replace('/', IslandoraSolrResults::$slashReplacement, $query); //replace the slash so we can use this in a url without breaking drupal clean urls
-    if (empty($islandora_solrQuery)) {
-      $islandora_solrQuery = '%20'; //so we can allow empty queries to dismax
-    }
-
-    $url = variable_get('islandora_solr_search_block_url', 'localhost:8080/solr');
-    $pathParts = parse_url($url);
-
-    $solr = new Apache_Solr_Service($pathParts['host'], $pathParts['port'], $pathParts['path'] . '/');
-    $query = $this->parseQuery($solr, $query, $dismax, $solr); //fix the query as some characters will break the search : and / slash are examples
-    $facetlimit = variable_get('islandora_solr_search_block_facet_limit', '12');
-    $facetMinCount = variable_get('islandora_solr_search_block_facet_min_count', '2');
-    $requestHandler = variable_get("islandora_solr_search_block_request_handler", "standard");
-    $additionalParams = array(
-      'facet' => 'true',
-      'facet.mincount' => $facetMinCount,
-      'facet.limit' => $facetlimit,
-      'qt' => $requestHandler,
-      'facet.field' => explode(',', variable_get("islandora_solr_search_block_facets", 'dc.subject,dc.type')), //comma separated list configured in the block config
-    );
-
-
-    $debugQuery = (variable_get('islandora_solr_search_debug_mode', 0) ? "true" : null ); //any val incl. 'false' is treated as true by Solr
-
-    global $islandora_fq;
-    if ($fq != NULL && $fq != '-') {
-      $fq = str_replace(IslandoraSolrResults::$slashReplacement, '/', $fq); //put the slash back
-      # THIS IS NO LONGER NECESSARY, OR USEFUL.
-      # HYPHENS SHOULD BE USED FOR FACET EXCLUSION, NOT FILTER REMOVAL.
-      #if(strpos($fq,'-')===0) {//remove the requested facet from the list
-      #  $fq = substr($fq,strpos($fq,IslandoraSolrResults::$facetSeparator)+1);
-      #}
-      $fqs = $this->csv_explode(IslandoraSolrResults::$facetSeparator,$fq,'"',true);//to filter by more then one facet we will separate them by~ for nowseparate them by~ for now
-      $additionalParams['fq'] = $fqs;
-      $islandora_fq = str_replace('/', IslandoraSolrResults::$slashReplacement, $fq); //remove the slash here as we will be using this in url's
-    }
-    if (empty($islandora_fq)) {
-      $islandora_fq = '-';
-    }
-    global $islandora_defType;
-    if ($dismax != NULL) {
-      $islandora_defType = $dismax;
-      $additionalParams['defType'] = $dismax;
-    }
-    $recordStart = $startPage;
-    $recordStart = max(0, $recordStart); //don't want a negative number
-    $recordStart = $recordStart * $limit;
-    try {
-      $results = $solr->search($query, $recordStart, $limit, $additionalParams);
-    } catch (Exception $e) {
-      drupal_set_message(t('error searching ') . $e->getMessage());
-    }
-    if (empty($results)) {
-      drupal_set_message(t('Error searching solr index. Is the solr search block configured properly?'), 'error');
-      return ' ';
-    }
-    $total = (int) $results->response->numFound;
-    $end = min(($limit + $recordStart), $total);
-
-    // Initialize drupal-style pager
-    islandora_solr_search_pager_init($total, $limit);
-
-    // Render Drupal pager (top of search results)
-    // $output .= theme('pager');
-    $output .= '<h2>Search Results</h2>';
-    $output .= '<div id="numresults">(' . ($recordStart + 1) . ' - ' . $end . ' of ' . $total . ')</div>';
-
-    if (class_exists($solrClass)) {
-      $implementation = new $solrClass();
-    } else {
-      drupal_set_message(t('Error loading solr results class. Class '.$solrClass.' could not be loaded. Check the Islandora Solr search blocks configuration.'), 'error');
-      return ' ';
-    }
-
-    if (method_exists($implementation, $solrFunction)) {
-      $output.= $implementation->$solrFunction($results);
-      if (variable_get('islandora_solr_search_debug_mode', 0)) { // debug dump
-        drupal_set_message('Params: <br/><pre>' . print_r($additionalParams, true) . '</pre>', 'status');
-      }
-    } else {
-      drupal_set_message(t('Error loading solr results class. Could not find the specified method.  Check the Islandora Solr search blocks configuration.'), 'error');
-    }
-
-    // Render Drupal pager (bottom of search results)
-    $output .= theme('pager');
-
-    global $islandora_facets; //make facets available to the islandora facet block
-    $islandora_facets = $results->facet_counts->facet_fields;
-    return $output;
-  }
 
 //default implementation of display results can be changed in the blocks config
 
@@ -173,11 +64,26 @@ class IslandoraSolrResults {
     }
     return $output;
   }
-  
-//called from the islandora facet block
-  function displayFacets() {
-    global $islandora_facets, $islandora_defType, $islandora_solrQuery, $base_url, $islandora_fq;
-    if( strlen( trim( $islandora_solrQuery ) ) ) {
+
+
+  /**
+   * Function: currentQuery
+   *
+   * Description: Displays elements of the current solr query (with enabled filters).
+   *   This functionality was previously rolled into the facet block, but it makes
+   *   sense to separate the two functions, particularly as the current query is now
+   *   imprinted in the system's breadcrumb.
+   *
+   * @param IslandoraSolrQueryProcessor $solrQueryProcessor
+   */
+
+  function currentQuery($solrQueryProcessor) {
+    global $base_url;
+    $output = '';
+    $islandora_fq = $solrQueryProcessor->solrFilters;
+    $islandora_facets = $solrQueryProcessor->solrFacets;
+
+    if( strlen( trim( $solrQueryProcessor->solrQuery ) ) ) {
 
       // Variables to build a drupal-ish unordered list
       $query_list_title = "Query";
@@ -192,15 +98,85 @@ class IslandoraSolrResults {
         '<img class="islandora_solr_add_remove_link" src="'.$base_url.'/'.drupal_get_path('module', 'islandora_solr_search').'/images/delete.png" alt="Remove search term">',
         'islandora/solr/search/'." ".'/'.$islandora_fq.'/dismax',
         array('html' => true)
-      ).' ' . stripslashes($islandora_solrQuery);
+      ).' ' . stripslashes($solrQueryProcessor->solrQuery);
 
       $output .= '<div class="islandora_solr_search_query_wrap">';
 
       $output .= theme_item_list($query_list_items, $query_list_title, $query_list_type, $query_list_attributes);
       $output .= '</div>'; // 'islandora_solr_search_query_wrap'
     }
+
+    //////////////////////////////////////////////////////////////////////////////
+    // Here we will build links to remove currently enforced facet filters ...  //
+    //////////////////////////////////////////////////////////////////////////////
+    $filters = empty($islandora_fq) ? null : explode(IslandoraSolrResults::$facetSeparator,$islandora_fq);
+
+    if(!empty($filters) && $islandora_fq != '-') {
+//      $filter_output = null;
+
+      // Variables to build a drupal-ish unordered list, which will be rendered
+      // a little bit farther down
+      $filter_list_title = "Enabled Filters";
+      $filter_list_items = array();
+      $filter_list_type = "ul";
+      $filter_list_attributes = array('class'=>'islandora_solr_search_filter_list filter_list');
+
+      foreach( $filters as $key=>$filter ) {
+//        ddump ($filters);
+        $edit_filters = $filters;
+        unset($edit_filters[$key]);
+        $filter_disable = implode(IslandoraSolrResults::$facetSeparator, $edit_filters);
+        if( empty( $filter_disable ) ) {
+          $filter_disable = '-';
+        }
+        $filter_name_and_value = explode( ":", $filter, 2 );
+        $filter_name = $filter_name_and_value[0];
+        $filter_value = $filter_name_and_value[1];
+        if( strncmp( $filter_name, '-', 1 ) )
+          $exclude = false;
+        else {
+          $exclude = true;
+          $filter_name = substr($filter_name, 1);
+        }
+        $filter_list_items[] = l(
+          '<img class="islandora_solr_add_remove_link" src="'.$base_url.'/'.drupal_get_path('module', 'islandora_solr_search').'/images/delete.png" alt="Remove this filter">',
+          'islandora/solr/search/'.$solrQueryProcessor->solrQuery.'/'.$filter_disable.'/'. $solrQueryProcessor->solrDefType,
+          array('html' => true)
+        ) . ' ' . $filter_name . ($exclude ? ' != ' : ' = ') . $filter_value;
+      }
+    }
+
+    if(!empty($filter_list_items)) {
+//      $filter_output = str_replace('%2B','%252B',$filter_output);
+      $output .= '<div class="islandora_solr_search_filter_wrap">';
+      $output .= theme_item_list($filter_list_items, $filter_list_title, $filter_list_type, $filter_list_attributes);
+      $output .= '</div>'; // 'islandora_solr_search_filter_wrap'
+    }
+
+    return $output;
+
+  }
+
+
+  /**
+   * Function: displayFacets
+   *
+   * Description: Displays basic facets based on an apache solr query response,
+   *   as contained with the IslandoraSolrQueryProcessor.
+   *
+   * @global string $base_url
+   * @param IslandoraSolrQueryProcessor $solrQueryProcessor
+   * @return string
+   */
+
+  function displayFacets($solrQueryProcessor) {
+    global $base_url;
+    $output = '';
+    $islandora_fq = $solrQueryProcessor->solrFilters;
+    $islandora_facets = $solrQueryProcessor->solrFacets;
+
     if(empty($islandora_facets)) {
-      return ''; //no facets to show
+      return $output; //no facets to show
     }
     foreach($islandora_facets as $key => $field) {
       $list_items = array();
@@ -233,8 +209,8 @@ class IslandoraSolrResults {
             // Links to remove enabled facet filters are created down below.
           } else {//normal link
             $evenodd = ( $facet_count%2 ? 'odd' : 'even' );
-            $lplus  = 'islandora/solr/search/'.$islandora_solrQuery.'/'.$filter_include.'/'.$islandora_defType;
-            $lminus = 'islandora/solr/search/'.$islandora_solrQuery.'/'.$filter_exclude.'/'.$islandora_defType;
+            $lplus  = 'islandora/solr/search/'.$solrQueryProcessor->solrQuery.'/'.$filter_include.'/'.$solrQueryProcessor->solrDefType;
+            $lminus = 'islandora/solr/search/'.$solrQueryProcessor->solrQuery.'/'.$filter_exclude.'/'.$solrQueryProcessor->solrDefType;
             $text  = $name;
             $attrs = array();
             $list_items[] = l( $text, $lplus, $attrs ) . ' ('.$number.')' .
@@ -257,58 +233,12 @@ class IslandoraSolrResults {
     }
 
 
-    //////////////////////////////////////////////////////////////////////////////
-    // Here we will build links to remove currently enforced facet filters ...  //
-    //////////////////////////////////////////////////////////////////////////////
-    $filters = explode(IslandoraSolrResults::$facetSeparator,$islandora_fq);
-
-    $facet_output .= theme_item_list($list_items, $list_title, $list_type, $list_attributes);
-    if(!empty($filters) && $islandora_fq != '-') {
-      $filter_output = null;
-
-      // Variables to build a drupal-ish unordered list, which will be rendered
-      // a little bit farther down
-      $filter_list_title = "Enabled Filters";
-      $filter_list_items = array();
-      $filter_list_type = "ul";
-      $filter_list_attributes = array('class'=>'islandora_solr_search_filter_list filter_list');
-
-      foreach( $filters as $key=>$filter ) {
-        $edit_filters = $filters;
-        unset($edit_filters[$key]);
-        $filter_disable = implode(IslandoraSolrResults::$facetSeparator, $edit_filters);
-        if( empty( $filter_disable ) ) {
-          $filter_disable = '-';
-        }
-        $filter_name_and_value = explode( ":", $filter, 2 );
-        $filter_name = $filter_name_and_value[0];
-        $filter_value = $filter_name_and_value[1];
-        if( strncmp( $filter_name, '-', 1 ) ) 
-          $exclude = false;
-        else {
-          $exclude = true;
-          $filter_name = substr($filter_name, 1);
-        }
-        $filter_list_items[] = l(
-          '<img class="islandora_solr_add_remove_link" src="'.$base_url.'/'.drupal_get_path('module', 'islandora_solr_search').'/images/delete.png" alt="Remove this filter">',
-          'islandora/solr/search/'.$islandora_solrQuery.'/'.$filter_disable.'/'. $islandora_defType,
-          array('html' => true)
-        ) . ' ' . $filter_name . ($exclude ? ' != ' : ' = ') . $filter_value;
-      }
-    }
-
     //////////////////////////////////////////////////////////////////////////////////////
     // as we add additional facets, we're repeatedly URL-encoding old facet             //
     // strings. when we double-encode quotation marks they're incomprehensible to solr. //
     // This is a quick workaround:                                                      //
     //////////////////////////////////////////////////////////////////////////////////////
     $facet_output = str_replace('%2B','%252B',$facet_output);
-    if(!empty($filter_list_items)) {
-      $filter_output = str_replace('%2B','%252B',$filter_output);
-      $output .= '<div class="islandora_solr_search_filter_wrap">';
-      $output .= theme_item_list($filter_list_items, $filter_list_title, $filter_list_type, $filter_list_attributes);
-      $output .= '</div>'; // 'islandora_solr_search_filter_wrap'
-    }
     $output .='<div class="islandora_solr_search_facet_wrap">';
     $output .= $facet_output;
     $output .= '</div>';
