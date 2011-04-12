@@ -74,14 +74,22 @@ function islandora_solr_admin_settings(&$form_state) {
     '#default_value' => variable_get('islandora_solr_search_block_request_handler', 'standard'),
   );
 
-  $form['islandora_solr_config_options'] = array(
-    '#type' => 'select',
-    '#title' => t('Configuration package'),
-    '#multiple' => false,
-    '#options' => $config_options,
-    '#description' => t('Name of configuration package for displaying output.'),
-    '#default_value' => variable_get('islandora_solr_config_options', 'islandora_solr_search~IslandoraSolrResults.inc~IslandoraSolrResults~displayResults'),
-  );
+  $profiles = module_invoke_all("islandora_solr_primary_display");
+  uksort($profiles, "sort_default_first");
+  foreach( $profiles as $machine_name => $profile ) {
+    $islandora_solr_primary_display_options[$machine_name] = $profile['name'];
+  }
+
+  if( !empty( $islandora_solr_primary_display_options )) {
+    $form['islandora_solr_primary_display'] = array(
+      '#type' => 'radios',
+      '#title' => t('Default Display Profile'),
+      '#options' => $islandora_solr_primary_display_options,
+      '#default_value' => variable_get( 'islandora_solr_primary_display', 'default' ),
+      '#description' => "Preferred normal display profile for search results.  These may be provided by third-party modules. ",
+    );
+  }
+
   $form['islandora_solr_search_block_repeat'] = array(
     '#type' => 'textfield',
     '#title' => t('Search Field Repetition'),
@@ -126,23 +134,6 @@ function islandora_solr_admin_settings(&$form_state) {
     '#default_value' => variable_get('islandora_solr_search_debug_mode', 0),
     '#description' => t('Dumps solr query info to the screen for testing purposes.'),
   );
-
-  $profiles = module_invoke_all("islandora_solr_primary_display");
-  uksort($profiles, "sort_default_first");
-  foreach( $profiles as $machine_name => $profile ) {
-    $islandora_solr_primary_display_options[$machine_name] = $profile['name'];
-  }
-
-//  if( variable_get('islandora_solr_search_debug_mode', 0)) ddump($profiles);
-  if( !empty( $islandora_solr_primary_display_options )) {
-    $form['islandora_solr_primary_display'] = array(
-      '#type' => 'radios',
-      '#title' => t('Default Display Profile'),
-      '#options' => $islandora_solr_primary_display_options,
-      '#default_value' => variable_get( 'islandora_solr_primary_display', 'default' ),
-      '#description' => "Preferred normal display profile for search results.  These may be provided by third-party modules. ",
-    );
-  }
 
   $form['buttons']['submit'] = array('#type' => 'submit', '#value' => t('Save Solr Configuration'));
   $form['buttons']['reset'] = array('#type' => 'submit', '#value' => t('Reset to defaults'));
