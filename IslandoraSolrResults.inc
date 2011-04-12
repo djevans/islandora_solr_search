@@ -424,6 +424,7 @@ class IslandoraSolrResults {
 
  
 //this function will be removed.  class has been refactored so we only need the display loop.  leaving here until mnpl is updated.
+  /*
   function mnplSearchAndDisplay($query, $startPage=1, $fq=null, $dismax=null) {
     $limit = variable_get('islandora_solr_search_num_of_results', 20);
     global $islandora_solrQuery, $islandora_solr_page_number, $base_url; //used by facect block as well
@@ -538,6 +539,8 @@ class IslandoraSolrResults {
     $islandora_facets = $results->facet_counts->facet_fields;
     return $output;
   }
+   *
+   */
 
   function get_search_terms_array($path = NULL, $file = NULL) {
     if (!isset($path)) {
