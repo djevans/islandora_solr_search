@@ -11,6 +11,7 @@ class IslandoraSolrResults {
   public static $SEARCH_CLASS_ADVANCED_SEARCH_NUMBER_FIELDS = 5;
   function IslandoraSolrResults() {
     module_load_include('php', 'islandora_solr_search', 'SolrPhpClient/Apache/Solr/Service');
+    module_load_include('inc', 'islandora_solr_search', 'includes/common');
   }
  
   function parseQuery($solr, $query,$dismax=false) {
@@ -350,7 +351,7 @@ class IslandoraSolrResults {
             '#type' => 'textfield',
             '#title' => t(''),
             '#required' => TRUE,
-            '#default_value' => (count($var0) >= 2 ? trim($var0[1],'()') : ''),
+            '#default_value' => (count($var0) >= 2 ? restoreSlashes(trim($var0[1],'()')) : ''),
     );
     if ($repeat>1 && $repeat < 9) { //don't want less then 2 or more then 9
       for ($i = 2; $i < $repeat + 1; $i++) {
@@ -438,7 +439,7 @@ class IslandoraSolrResults {
     $port = variable_get('islandora_solr_search_block_port', '8080');
     $appName = variable_get('islandora_solr_search_block_app_name', 'solr');
     $solr = new Apache_Solr_Service($host, $port, '/' . $appName . '/');
-    $query = $this->parseQuery($solr, $query, $dismax, $solr); //fix the query as some characters will break the search : and / slash are examples
+    $query = restoreSlashes($query); //fix the query as some characters will break the search : and / slash are examples
     $facetlimit = variable_get('islandora_solr_search_block_facet_limit', '12');
     $facetMinCount = variable_get('islandora_solr_search_block_facet_min_count', '2');
     $requestHandler = variable_get("islandora_solr_search_block_request_handler", "standard");
@@ -455,7 +456,7 @@ class IslandoraSolrResults {
       if (strpos($fq, '-') === 0) {//remove the requested facet from the list
         $fq = substr($fq, strpos($fq, IslandoraSolrResults::$facetSeparator) + 1);
       }
-      $fqs = $this->csv_explode(IslandoraSolrResults::$facetSeparator, $fq, '"', true); //to filter by more then one facet we will separate them by~ for now
+      $fqs = csv_explode(IslandoraSolrResults::$facetSeparator, $fq, '"', true); //to filter by more then one facet we will separate them by~ for now
       $additionalParams['fq'] = $fqs;
       $islandora_fq = str_replace('/', IslandoraSolrResults::$slashReplacement, $fq); //remove the slash here as we will be using this in url's
     }

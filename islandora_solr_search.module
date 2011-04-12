@@ -2,7 +2,7 @@
 
 global $islandora_query;
 module_load_include('inc', 'islandora_solr_search','islandora_solr_search.admin');
-module_load_include('inc', 'islandora_solr_search','includes/IslandoraSolrSearchCommon');
+module_load_include('inc', 'islandora_solr_search','includes/common');
 /**
  * @file
  * Implementation of Solr search for the Islandora fedora_search module.
