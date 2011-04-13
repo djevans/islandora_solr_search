@@ -36,7 +36,7 @@ class IslandoraSolrQueryProcessor {
     // Get pager variable
     $startPage = isset($_GET['page']) ? $_GET['page'] : 0;
     $this->solrLimit = variable_get('islandora_solr_search_num_of_results', 20);
-    global $base_url; //used by facet block as well
+    global $base_url, $facetArray; //used by facet block as well
 
     // Get display profile
     $islandora_solr_primary_display = variable_get( 'islandora_solr_primary_display', 'default' );
@@ -61,7 +61,23 @@ class IslandoraSolrQueryProcessor {
 
     $url = variable_get('islandora_solr_search_block_url', 'http://localhost:8080/solr');
     $pathParts = parse_url($url);
-
+    $facetArray = array();
+    $facetFields = '';
+    $rawFacetVals = variable_get("islandora_solr_search_block_facets", 'dc.subject,dc.type');
+    $lines = preg_split('/[,|\n|\r]/', $rawFacetVals);
+    foreach ($lines as $line) {
+      $lineArray = explode('~', $line);
+      $key = trim($lineArray[0]);
+      $value = trim($lineArray[1]);
+      if (!$value) {
+        $value = $key;
+      }
+      $facetArray[$key] = $value;
+      if ($facetFields) {
+        $facetFields .= ",";
+      }
+      $facetFields .= $key;
+    }
     $solr = new Apache_Solr_Service($pathParts['host'], $pathParts['port'], $pathParts['path'] . '/');
 
     //fix the query as some characters will break the search : and / slash are examples
@@ -76,7 +92,7 @@ class IslandoraSolrQueryProcessor {
       'facet.mincount' => $facetMinCount,
       'facet.limit' => $facetlimit,
       'qt' => $requestHandler,
-      'facet.field' => explode(',', variable_get("islandora_solr_search_block_facets", 'dc.subject,dc.type')), //comma separated list configured in the block config
+      'facet.field' => explode(',', $facetFields), //comma separated list configured in the block config
     );
 
 
@@ -218,7 +234,8 @@ class IslandoraSolrQueryProcessor {
         if($field=='PID') {
           $l = l($value,'fedora/repository/'.htmlspecialchars($value,ENT_QUOTES,'utf-8'));
           $rows[$row][] = $l;
-        }else {
+        }
+        else {
           $rows[$row][] = $value;
         }
         $row++;
@@ -233,7 +250,7 @@ class IslandoraSolrQueryProcessor {
         '#collapsible' => TRUE,
         '#collapsed' => TRUE,
         '#value' => $results_r,
-        );
+      );
       $output .= theme('fieldset', $fieldset_r);
     }
     return $output;

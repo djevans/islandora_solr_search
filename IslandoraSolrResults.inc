@@ -6,9 +6,10 @@
 
 class IslandoraSolrResults {
 
-  static $facetSeparator = '~';//used to separate facets in url
-  static $slashReplacement = '~slsh~';// a pattern used to replace / in url's the slash breaks drupal clean url's
+  static $facetSeparator = '~'; //used to separate facets in url
+  static $slashReplacement = '~slsh~'; // a pattern used to replace / in url's the slash breaks drupal clean url's
   public static $SEARCH_CLASS_ADVANCED_SEARCH_NUMBER_FIELDS = 5;
+
   function IslandoraSolrResults() {
     module_load_include('php', 'islandora_solr_search', 'SolrPhpClient/Apache/Solr/Service');
     module_load_include('inc', 'islandora_solr_search', 'includes/common');
@@ -17,49 +18,50 @@ class IslandoraSolrResults {
 
 //default implementation of display results can be changed in the blocks config
 
-  function displayResults($results){
+  function displayResults($results) {
     $items = array();
     $type = "ol";
     $title = null;
     $recordStart = $results->response->start;
-    
+
     global $base_url;
-    if(empty($results)) {
+    if (empty($results)) {
       return "no results";
     }
 
-    foreach($results->response->docs as $doc) {
+    foreach ($results->response->docs as $doc) {
       $rows = array();
       $row = 0;
 
-      foreach($doc as $field => $value) {
+      foreach ($doc as $field => $value) {
         $rows[$row][] = array(
           'data' => $field,
           'header' => true,
         );
-        if(is_array($value)) {
-          $value = implode(", ",$value);
+        if (is_array($value)) {
+          $value = implode(", ", $value);
         }
 
-        if($field=='PID') {
-          $l = l($value,'fedora/repository/'.htmlspecialchars($value,ENT_QUOTES,'utf-8'));
+        if ($field == 'PID') {
+          $l = l($value, 'fedora/repository/' . htmlspecialchars($value, ENT_QUOTES, 'utf-8'));
           $rows[$row][] = $l;
-        }else {
+        }
+        else {
           $rows[$row][] = $value;
         }
         $row++;
       }
-      $items[] = theme_table(null,$rows,array('class'=>'islandora_solr_search_results_object'));
+      $items[] = theme_table(null, $rows, array('class' => 'islandora_solr_search_results_object'));
     }
-    $output .= theme_item_list($items, $title, $type, array('class'=>'stuff','start'=>($recordStart + 1)));
-    if( variable_get('islandora_solr_search_debug_mode', 0) ) { // debug dump
-      $results_r .= "<pre>Results: ".print_r($results,true)."</pre>";
+    $output .= theme_item_list($items, $title, $type, array('class' => 'stuff', 'start' => ($recordStart + 1)));
+    if (variable_get('islandora_solr_search_debug_mode', 0)) { // debug dump
+      $results_r .= "<pre>Results: " . print_r($results, true) . "</pre>";
       $fieldset_r = array(
-        '#title' => t("Raw Results"),                                                                                                                                             
+        '#title' => t("Raw Results"),
         '#collapsible' => TRUE,
         '#collapsed' => TRUE,
         '#value' => $results_r,
-        );
+      );
       $output .= theme('fieldset', $fieldset_r);
     }
     return $output;
@@ -78,7 +80,7 @@ class IslandoraSolrResults {
    */
 
   function currentQuery($solrQueryProcessor) {
-    global $base_url;
+    global $base_url, $facetArray;
     $output = '';
     $islandora_fq = $solrQueryProcessor->solrFilters;
     $islandora_facets = $solrQueryProcessor->solrFacets;
@@ -89,7 +91,7 @@ class IslandoraSolrResults {
       $query_list_title = "Query";
       $query_list_items = array();
       $query_list_type = "ul";
-      $query_list_attributes = array('class'=>'islandora_solr_search_query_list query_list');
+      $query_list_attributes = array('class' => 'islandora_solr_search_query_list query_list');
 
       // OK, so it's a list of one.
       // In the future, we could reasonably break the query on boolean operators
@@ -142,7 +144,7 @@ class IslandoraSolrResults {
           '<img class="islandora_solr_add_remove_link" src="'.$base_url.'/'.drupal_get_path('module', 'islandora_solr_search').'/images/delete.png" alt="Remove this filter">',
           'islandora/solr/search/'.$solrQueryProcessor->solrQuery.'/'.$filter_disable.'/'. $solrQueryProcessor->solrDefType,
           array('html' => true)
-        ) . ' ' . $filter_name . ($exclude ? ' != ' : ' = ') . $filter_value;
+        ) . ' ' . $facetArray[$filter_name] . ($exclude ? ' != ' : ' = ') . $filter_value;
       }
     }
 
@@ -170,7 +172,7 @@ class IslandoraSolrResults {
    */
 
   function displayFacets($solrQueryProcessor) {
-    global $base_url;
+    global $base_url, $facetArray;
     $output = '';
     $islandora_fq = $solrQueryProcessor->solrFilters;
     $islandora_facets = $solrQueryProcessor->solrFacets;
@@ -178,15 +180,15 @@ class IslandoraSolrResults {
     if(empty($islandora_facets)) {
       return $output; //no facets to show
     }
-    foreach($islandora_facets as $key => $field) {
+    foreach ($islandora_facets as $key => $field) {
       $list_items = array();
       $list_type = "ul";
       $list_title = null;
 
-      $test = get_object_vars($field);//get the number of fields if there aren't any don't show the key
-      if (count($test)>0) {
+      $test = get_object_vars($field); //get the number of fields if there aren't any don't show the key
+      if (count($test) > 0) {
         $facet_count = 0;
-        unset( $normal_facet_output );
+        unset($normal_facet_output);
         $filter_include = null;
         $filter_exclude = null;
         foreach($field as $name=>$number) {
@@ -215,17 +217,17 @@ class IslandoraSolrResults {
             $attrs = array();
             $list_items[] = l( $text, $lplus, $attrs ) . ' ('.$number.')' .
                 '<span class="plusminus">' .
-                  l('+',$lplus,array('attributes'=>array('class'=>'plus'))) . ' ' .
-                  l('-',$lminus,array('attributes'=>array('class'=>'minus'))) .
+                l('+', $lplus, array('attributes' => array('class' => 'plus'))) . ' ' .
+                l('-', $lminus, array('attributes' => array('class' => 'minus'))) .
                 '</span>';
             $facet_count++;
           }
         }
         if( $facet_count >=2 ) {
           $facet_output .='<div class="islandora_solr_search_facet">';
-          $list_title = $key;
+          $list_title = $facetArray[$key];
           $list_type = "ul";
-          $list_attributes = array('class'=>'islandora_solr_search_facet_list facet_list');
+          $list_attributes = array('class' => 'islandora_solr_search_facet_list facet_list');
           $facet_output .= theme_item_list($list_items, $list_title, $list_type, $list_attributes);
           $facet_output .='</div>';
         }
@@ -247,7 +249,16 @@ class IslandoraSolrResults {
   }
 
   function build_solr_search_form($repeat = NULL, $pathToSearchTerms = NULL, $query = NULL) {
-    $types = $this->get_search_terms_array(NULL, 'solrSearchTerms.xml');
+    $types = array();
+    $terms = trim(variable_get('islandora_solr_searchterms', 'dc.title ~ Title,dc.subject ~ Subject'));
+    $termsArray = preg_split('/[\n]/', $terms);
+    foreach ($termsArray as $term) {
+      $vals = split('~', $term);
+      if (!$vals[1]) {
+        $vals[1] = $vals[0];
+      }
+      $types[trim($vals[0])] = trim($vals[1]);
+    }
     $queryArray = NULL;
     if (isset($query)) {
       $queryArray = preg_split( '/( OR | AND )/', $query, 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
@@ -261,8 +272,8 @@ class IslandoraSolrResults {
     }
 
     $andOrArray = array(
-            'AND' => 'and',
-            'OR' => 'or',
+      'AND' => 'and',
+      'OR' => 'or',
     );
     $form = array();
 
@@ -271,63 +282,66 @@ class IslandoraSolrResults {
     }
     $var0 = explode(':', $queryArray[0]);
     $form['search_type']['type1'] = array(
-            '#title' => t(''),
-            '#type' => 'select',
-            '#options' => $types,
-            '#default_value' => trim($var0[0])
+      '#title' => t(''),
+      '#type' => 'select',
+      '#options' => $types,
+      '#default_value' => trim($var0[0])
     );
     $form['fedora_terms1'] = array(
             '#size' => '24',
             '#type' => 'textfield',
             '#title' => t(''),
-            '#required' => TRUE,
             '#default_value' => (count($var0) >= 2 ? restoreSlashes(trim($var0[1],'()')) : ''),
     );
-    if ($repeat>1 && $repeat < 9) { //don't want less then 2 or more then 9
+    if ($repeat > 1 && $repeat < 9) { //don't want less then 2 or more then 9
       for ($i = 2; $i < $repeat + 1; $i++) {
         $t = $i - 1;
         $j = $i - 2;
         $andorj = ( isset($andOrs[$j]) ? $andOrs[$j] : 'AND' );
         $field_and_term = explode(':', $queryArray[$t]);
         $form["andor$t"] = array(
-                '#title' => t(''),
-                '#type' => 'select',
-                '#default_value' => $andorj,
-                '#options' => $andOrArray
+          '#title' => t(''),
+          '#type' => 'select',
+          '#default_value' => $andorj,
+          '#options' => $andOrArray
         );
         $form['search_type']["type$i"] = array(
-                '#title' => t(''),
-                '#type' => 'select',
-                '#options' => $types,
-                '#default_value' => trim($field_and_term[0])
+          '#title' => t(''),
+          '#type' => 'select',
+          '#options' => $types,
+          '#default_value' => trim($field_and_term[0])
         );
         $form["fedora_terms$i"] = array(
-                '#size' => '24',
-                '#type' => 'textfield',
-                '#title' => t(''),
-                '#default_value' => (count($field_and_term) >= 2 ? trim($field_and_term[1],'()') : ''),
+          '#size' => '24',
+          '#type' => 'textfield',
+          '#title' => t(''),
+          '#default_value' => (count($field_and_term) >= 2 ? trim($field_and_term[1], '()') : ''),
         );
       }
     }
 
     $form['submit'] = array(
-            '#type' => 'submit',
-            '#value' => t('search')
+      '#type' => 'submit',
+      '#value' => t('search')
     );
     return $form;
   }
 
   function build_simple_solr_form() {
-    //$form = array();
+    global $islandora_query;
+    if(!strpos($islandora_query, ':')){
+      $default = $islandora_query;
+    }
+    // TODO: Fix the above.  The global is no longer valid, and the test is not conclusive.  Should instead test for deftype=dismax.
     $form["islandora_simple_search_query"] = array(
                 '#size' => '24%',
                 '#type' => 'textfield',
                 '#title' => t(''),
-               // '#default_value' => (count($field_and_term) >= 2 ? trim($field_and_term[1]) : ''),
+                '#default_value' => $default,
         );
     $form['submit'] = array(
-            '#type' => 'submit',
-            '#value' => t('search')
+      '#type' => 'submit',
+      '#value' => t('search')
     );
     return $form;
   }
@@ -374,11 +388,11 @@ class IslandoraSolrResults {
     $facetMinCount = variable_get('islandora_solr_search_block_facet_min_count', '2');
     $requestHandler = variable_get("islandora_solr_search_block_request_handler", "standard");
     $additionalParams = array(
-        'facet' => 'true',
-        'facet.mincount' => $facetMinCount,
-        'facet.limit' => $facetlimit,
-        'qt' => $requestHandler,
-        'facet.field' => explode(',', variable_get("islandora_solr_search_block_facets", 'dc.subject,dc.type')), //comma separated list configured in the block config
+      'facet' => 'true',
+      'facet.mincount' => $facetMinCount,
+      'facet.limit' => $facetlimit,
+      'qt' => $requestHandler,
+      'facet.field' => explode(',', variable_get("islandora_solr_search_block_facets", 'dc.subject,dc.type')), //comma separated list configured in the block config
     );
     global $islandora_fq;
     if ($fq != NULL && $fq != '-') {
@@ -439,11 +453,14 @@ class IslandoraSolrResults {
         }
         if ($field == 'PID') {
           $pidValue = $value;
-        } else if ($field == 'genus') {
+        }
+        else if ($field == 'genus') {
           $genusValue = $value;
-        } else if ($field == 'specimen.species') {
+        }
+        else if ($field == 'specimen.species') {
           $speciesValue = $value;
-        } else if ($field == 'lab_id') {
+        }
+        else if ($field == 'lab_id') {
           $keyValue = $value;
         }
       }
@@ -452,11 +469,13 @@ class IslandoraSolrResults {
         $pidForImage = substr($pidValue, 0, $index);
         $pidForImage = str_replace('fraction', 'specimen', $pidForImage);
         $typeString = 'Fraction';
-      } else if ($index = (strpos($pidValue, '-C-', TRUE))) {
+      }
+      else if ($index = (strpos($pidValue, '-C-', TRUE))) {
         $pidForImage = strstr($pidValue, 0, $index);
         $pidForImage = str_replace('compound', 'specimen', $pidForImage);
         $typeString = 'Compound';
-      } else {
+      }
+      else {
         $pidForImage = $pidValue;
       }
       $output.='<img src="' . $base_url . '/fedora/repository/' . htmlspecialchars($pidForImage, ENT_QUOTES, 'utf-8') . '/TN"/><a href="' . $base_url . '/fedora/repository/' . htmlspecialchars($pidValue, ENT_QUOTES, 'utf-8') . '"><strong>' . $typeString . '</strong>' . $keyValue . ': ' . $genusValue . ' ' . $speciesValue . '</a> ';
@@ -473,26 +492,6 @@ class IslandoraSolrResults {
    *
    */
 
-  function get_search_terms_array($path = NULL, $file = NULL) {
-    if (!isset($path)) {
-      $path = drupal_get_path('module', 'islandora_solr_search');
-    }
-    $xmlDoc = new DomDocument();
-    if (!isset($file)) {
-      $file = 'searchTerms.xml';
-    }
-    $xmlDoc->load($path . '/' . $file);
-    $nodeList = $xmlDoc->getElementsByTagName('term');
-    $types = array();
-    for ($i = 0; $i < $nodeList->length; $i++) {
-      $field = $nodeList->item($i)->getElementsByTagName('field');
-      $value = $nodeList->item($i)->getElementsByTagName('value');
-      $fieldValue = $field->item(0)->nodeValue;
-      $valueValue = $value->item(0)->nodeValue;
-      $types["$fieldValue"] = "$valueValue";
-    }
-    return $types;
-  }
 
 }
 

@@ -98,12 +98,20 @@ function islandora_solr_admin_settings(&$form_state) {
     '#default_value' => variable_get('islandora_solr_search_block_repeat', t('3')),
   );
 
+  $form['islandora_solr_searchterms'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Search Terms'),
+    '#description' => t('A list of fields to populate the terms dropdown for the fielded search block. An optional friendly term my be added to each solr term for a more readable display. <br />
+      Each term must be on its own line, and the solr term and the friendly term must be separated with a tilde. ie <strong>dc.title ~ Title</strong> '),
+    '#default_value' => variable_get('islandora_solr_searchterms', 'dc.title ~ Title'),
+  );
+
   $form['islandora_solr_search_block_facets'] = array(
     '#type' => 'textarea',
     '#title' => t('Facet Fields'),
-    // '#size' => 75,
-    '#description' => t('a comma-separated list of fields to use as facets'),
-    '#default_value' => variable_get('islandora_solr_search_block_facets', t('dc.subject,dc.type')),
+    '#description' => t('A list of fields for faceting. An optional friendly term my be added to each solr term for a more readable display. <br />
+      Each term must be on its own line, and the solr term and the friendly term must be separated with a tilde. ie <strong>yearPublished ~ Date of Publication</strong'),
+    '#default_value' => variable_get('islandora_solr_search_block_facets', t('dc.subject ~ Subject,dc.type ~ Type')),
   );
 
   $form['islandora_solr_search_block_facet_min_count'] = array(

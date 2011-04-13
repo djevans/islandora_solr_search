@@ -29,7 +29,6 @@ function islandora_solr_search_menu() {
     'access arguments' => array('view fedora collection'), 
     'file' => 'islandora_solr_search.admin.inc',
     'type' => MENU_CALLBACK,
-
   );
 
   $items['admin/settings/islandora_solr_search'] = array(
@@ -41,6 +40,8 @@ function islandora_solr_search_menu() {
     'file' => 'islandora_solr_search.admin.inc',
     'type' => MENU_NORMAL_ITEM,
   );
+
+
 
   return $items;
 }
@@ -216,9 +217,17 @@ function islandora_solr_simple_search_form() {
   return $searchClass->build_simple_solr_form();
 }
 
-function islandora_solr_simple_search_form_validate($form, &$form_state) {
-  if ($form_state['values']['islandora_simple_search_query'] == '') {
-    // Nothing; though, we formerly invalidated empty queries.
+function islandora_solr_search_block_form_validate($form, &$form_state) {
+
+  $repeat = variable_get('islandora_solr_search_block_repeat', t('3'));
+  $found = FALSE;
+  for ($fieldNum = 1; $fieldNum <= $repeat; $fieldNum++) {
+    if ($form_state['values']["fedora_terms$fieldNum"]) {
+      $found = TRUE;
+    }
+  }
+  if (!$found) {
+    form_set_error('edit_fedora_terms1', t('Please enter search term.'));
   }
 }
 
@@ -257,25 +266,29 @@ function islandora_solr_search($query, $fq=null, $dismax=null) {
   return $result;
 }
 
-
-
 function islandora_solr_search_block_form_submit($form, &$form_state) {
   global $queryClass;
   islandora_solr_search_init();
 
   $type_id = trim($form_state['values']['type']);
   $repeat = variable_get('islandora_solr_search_block_repeat', t('3'));
-  $searchString = trim($form_state['values']['type1']) . ':(' . IslandoraSolrQueryProcessor::lesser_escape(trim($form_state['values']['fedora_terms1'])) . ')';
-  if ($form_state['values']['fedora_terms2'] != '') {
-    $searchString .=' ' . trim($form_state['values']['andor1']) . ' ' . trim($form_state['values']['type2']) . ':(' . IslandoraSolrQueryProcessor::lesser_escape(trim($form_state['values']['fedora_terms2'])) . ')';
-  }
-  if ($repeat > 2 && $repeat < 9) {
-    for ($i = 3; $i < $repeat + 1; $i++) {
-      $t = $i - 1;
-      if ($form_state['values']["fedora_terms$i"] != '') {
-        $searchString .= ' ' . trim($form_state['values']["andor$t"]) . ' ' . trim($form_state['values']["type$i"]) . ':(' . IslandoraSolrQueryProcessor::lesser_escape(trim($form_state['values']["fedora_terms$i"])) . ')';
-      }
+  $fedora_terms = array();
+  $types = array();
+  $booleans = array();
+
+  for ($fieldNum = 1; $fieldNum <= $repeat; $fieldNum++) {
+    if ($form_state['values']["fedora_terms$fieldNum"]) {
+      $types[] = trim($form_state['values']["type$fieldNum"]);
+      $fedora_terms[] = lesser_escape(trim($form_state['values']["fedora_terms$fieldNum"]));
     }
+    $next = $fieldNum + 1;
+    if ($form_state['values']["fedora_terms$next"] && $form_state['values']["fedora_terms$fieldNum"]) {
+      $booleans[] = trim($form_state['values']["andor$fieldNum"]);
+    }
+  }
+
+  for ($iteration = 0; $iteration < count($fedora_terms); $iteration++) {
+    $searchString .= $types[$iteration] . ":" . $fedora_terms[$iteration] . " " . $booleans[$iteration] . " ";
   }
   $searchString = htmlspecialchars(drupal_urlencode($searchString), ENT_QUOTES, 'utf-8', false);
   $searchString = str_replace('/', '~slsh~', $searchString); //replace the slash so url doesn't break
