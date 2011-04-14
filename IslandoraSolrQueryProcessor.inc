@@ -200,62 +200,6 @@ class IslandoraSolrQueryProcessor {
     return $output;
   }
 
-  /**
-   * Function: displayResults
-   *
-   * Description: translates a solr query result into a basic in-browser search result.
-   *
-   * @param IslandoraSolrQueryProcessor $results
-   */
-  function displayResults($results){
-    $items = array();
-    $type = "ol";
-    $title = null;
-    $recordStart = $results->response->start;
-
-    global $base_url;
-    if(empty($results)) {
-      return "no results";
-    }
-
-    foreach($results->response->docs as $doc) {
-      $rows = array();
-      $row = 0;
-
-      foreach($doc as $field => $value) {
-        $rows[$row][] = array(
-          'data' => $field,
-          'header' => true,
-        );
-        if(is_array($value)) {
-          $value = implode(", ",$value);
-        }
-
-        if($field=='PID') {
-          $l = l($value,'fedora/repository/'.htmlspecialchars($value,ENT_QUOTES,'utf-8'));
-          $rows[$row][] = $l;
-        }
-        else {
-          $rows[$row][] = $value;
-        }
-        $row++;
-      }
-      $items[] = theme_table(null,$rows,array('class'=>'islandora_solr_search_results_object'));
-    }
-    $output .= theme_item_list($items, $title, $type, array('class'=>'stuff','start'=>($recordStart + 1)));
-    if( variable_get('islandora_solr_search_debug_mode', 0) ) { // debug dump
-      $results_r .= "<pre>Results: ".print_r($results,true)."</pre>";
-      $fieldset_r = array(
-        '#title' => t("Raw Results"),
-        '#collapsible' => TRUE,
-        '#collapsed' => TRUE,
-        '#value' => $results_r,
-      );
-      $output .= theme('fieldset', $fieldset_r);
-    }
-    return $output;
-  }
-
 
   /**
    * Function delete_filter

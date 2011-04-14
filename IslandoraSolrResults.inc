@@ -16,8 +16,13 @@ class IslandoraSolrResults {
   }
 
 
-//default implementation of display results can be changed in the blocks config
-
+  /**
+   * Function: displayResults
+   *
+   * Description: translates a solr query result into a basic in-browser search result.
+   *
+   * @param IslandoraSolrQueryProcessor $results
+   */
   function displayResults($results) {
     $items = array();
     $type = "ol";
