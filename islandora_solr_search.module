@@ -213,8 +213,8 @@ function islandora_solr_search_islandora_solr_query_blocks() {
 
 function islandora_solr_simple_search_form() {
   module_load_include('inc', 'islandora_solr_search', 'IslandoraSolrResults');
-  $searchClass = new IslandoraSolrResults();
-  return $searchClass->build_simple_solr_form();
+  $resultsClass = new IslandoraSolrResults();
+  return $resultsClass->build_simple_solr_form();
 }
 
 function islandora_solr_search_block_form_validate($form, &$form_state) {
@@ -243,8 +243,8 @@ function islandora_solr_search_block_form() {
   islandora_solr_search_init();
 
   module_load_include('inc', 'islandora_solr_search', 'IslandoraSolrResults');
-  $searchClass = new IslandoraSolrResults();
-  return $searchClass->build_solr_search_form(null, null, $queryClass->solrQuery);
+  $resultsClass = new IslandoraSolrResults();
+  return $resultsClass->build_solr_search_form(null, null, $queryClass->solrQuery);
 }
 
 function theme_islandora_solr_search_block_form($form) {
@@ -252,8 +252,8 @@ function theme_islandora_solr_search_block_form($form) {
   islandora_solr_search_init();
 
   module_load_include('inc', 'islandora_solr_search', 'IslandoraSolrResults');
-  $advanced_search_form = new IslandoraSolrResults();
-  return $advanced_search_form->theme_solr_search_form($form);
+  $resultsClass = new IslandoraSolrResults();
+  return $resultsClass->theme_solr_search_form($form);
 }
 
 function islandora_solr_search($query, $fq=null, $dismax=null) {
