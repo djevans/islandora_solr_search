@@ -264,7 +264,7 @@ function islandora_solr_search($query, $fq=null, $dismax=null) {
   islandora_solr_search_init();
 
   // Build and execute Apache Solr query
-  $queryResult = $queryClass->buildQuery($query, $fq, $dismax);
+  $queryResult = $queryClass->buildAndExecuteQuery($query, $fq, $dismax);
 
   // Get the preferred display profile
   $islandora_solr_primary_display = variable_get( 'islandora_solr_primary_display', 'default' );
