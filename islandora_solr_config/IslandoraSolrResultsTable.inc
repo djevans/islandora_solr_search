@@ -16,7 +16,7 @@ class IslandoraSolrResultsTable extends IslandoraSolrResults {
   static $facetSeparator = '~';//used to separate facets in url
   static $slashReplacement = '~slsh~';// a pattern used to replace / in url's the slash breaks drupal clean url's
   public static $SEARCH_CLASS_ADVANCED_SEARCH_NUMBER_FIELDS = 5;
-  function IslandoraSolrResults() {
+  function IslandoraSolrResultsTable() {
     module_load_include('php', 'islandora_solr_search', 'SolrPhpClient/Apache/Solr/Service');
   }
 
