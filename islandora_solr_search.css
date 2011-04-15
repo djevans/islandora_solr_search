@@ -77,6 +77,15 @@ table.islandora_solr_search_results_table tr td
 .islandora_solr_search_facet .plusminus {
   float:right;
 }
+
+#islandora_solr_secondary_display_profiles {
+  float:right;
+}
+
+img.islandora_solr_secondary_display_icon {
+  vertical-align: bottom;
+}
+
 html.js .refresh-button {
   display: none;
 }
