@@ -35,7 +35,7 @@ class IslandoraSolrResultsTable extends IslandoraSolrResults {
    *   html output for the resultset. Note: we currently create this 
    *   output manually, should refactor to use drupal forms api.
    */
-  function displayResults($results){
+  function printResults($results){
     global $base_url;
     $recordStart = (int)$results->response->start;
     if(empty($results)) {

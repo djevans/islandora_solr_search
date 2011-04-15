@@ -259,11 +259,55 @@ function theme_islandora_solr_search_block_form($form) {
 function islandora_solr_search($query, $fq=null, $dismax=null) {
   global $queryClass;
   islandora_solr_search_init();
-  
-  $result = $queryClass->buildQuery($query, $fq, $dismax);
-  // TODO: splut buildQuery into two functions.
-  // $output = $queryClass->executeQuery();
-  return $result;
+
+  // Build and execute Apache Solr query
+  $queryResult = $queryClass->buildQuery($query, $fq, $dismax);
+
+  // Get the preferred display profile
+  $islandora_solr_primary_display = variable_get( 'islandora_solr_primary_display', 'default' );
+  $profiles = module_invoke_all("islandora_solr_primary_display");
+  if( !isset( $profiles[$islandora_solr_primary_display] )) {
+    drupal_set_message("There is an error in the solr search configuration: the display profile is not found.", 'error');
+    $profile = $profiles['default'];
+  } else {
+    $profile = $profiles[$islandora_solr_primary_display];
+  }
+
+  // Include the file for the display profile
+  require_once(drupal_get_path('module', $profile['module']) .'/'. $profile['file']);
+
+  // Set display class and function vars
+  $solrClass = $profile['class'];
+  $solrFunction = $profile['function'];
+
+  $nope = false;
+
+  if (class_exists($solrClass)) {
+    $implementation = new $solrClass();
+  } else {
+    $nope = true;
+  }
+
+  if (!$nope && method_exists($implementation, $solrFunction)) {
+    $output = $implementation->$solrFunction($queryClass);
+  } else {
+    $nope = true;
+  }
+
+  if ($nope) {
+    module_load_include('inc', 'islandora_solr_search', 'IslandoraSolrResults');
+    $resultsClass = new IslandoraSolrResults();
+    $output = $resultsClass->displayResults($queryClass);
+  }
+
+  if (variable_get('islandora_solr_search_debug_mode', 0)) { // debug dump
+    drupal_set_message('Params: <br/><pre>' . print_r($queryClass->solrParams, true) . '</pre>', 'status');
+  }
+
+  return $output;
+
+
+//  return $queryResult;
 }
 
 function islandora_solr_search_block_form_submit($form, &$form_state) {

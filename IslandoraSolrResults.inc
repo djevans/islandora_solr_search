@@ -19,11 +19,65 @@ class IslandoraSolrResults {
   /**
    * Function: displayResults
    *
+   * Description: sets up display framework, including things like title, pager, breadcrumb, etc.
+   *
+   * @param IslandoraSolrResults $solrResults
+   */
+  function displayResults($solrQueryProcessor, $title = "Search Results", $output = '') {
+
+    $apacheSolrResult = $solrQueryProcessor->solrResult;
+
+    $total = (int) $apacheSolrResult->response->numFound;
+    $end = min(($solrQueryProcessor->solrLimit + $solrQueryProcessor->solrStart), $total);
+
+    // Initialize drupal-style pager
+    islandora_solr_search_pager_init($total, $solrQueryProcessor->solrLimit);
+
+    $output .= '<h2>'.$title.'</h2>';
+    $output .= '<div id="islandora_solr_result_count">(' . ($solrQueryProcessor->solrStart + 1) . ' - ' . $end . ' of ' . $total . ')</div>';
+    $output .= '<div class="content">';
+
+    $secondary_display_profiles = module_invoke_all('islandora_solr_secondary_display');
+    // How about this for an expected return?
+    // return array(
+    // 'machine-name' = array(
+    //   'name' => 'Human Readable Name',
+    //   'module' => 'module_name',
+    //   'file' => 'FileName.inc',
+    //   'class' => 'ClassName',
+    //   'function' => 'function_name',
+    //   'description' => 'A description of the display profile',
+    //   'logo' => 'Some text, some <html>, an <img>, etc used to link to this output,
+    // );
+
+    /*
+     * Then, here, we need to build links to the current query under the secondary query display
+     * profile for each such profile which uses the hook.
+     *
+     * The link should basically be $theCurrentURL with &proile=<profile_name> tacked on.
+     *
+     * Also, perhaps there's no difference between primary and secondary profiles?
+     */
+
+    $output .= $this->printResults($solrQueryProcessor->solrResult);
+
+    // Render Drupal pager (bottom of search results)
+    $output .= theme('pager',null,$solrQueryProcessor->solrLimit,0,null,5);
+
+
+    $output .= "</div>"; // class = "content"
+    return $output;
+  }
+
+
+  /**
+   * Function: printResults
+   *
    * Description: translates a solr query result into a basic in-browser search result.
    *
-   * @param IslandoraSolrQueryProcessor $results
+   * @param Apache_Solr_Object $results
    */
-  function displayResults($results) {
+  function printResults($results) {
     $items = array();
     $type = "ol";
     $title = null;

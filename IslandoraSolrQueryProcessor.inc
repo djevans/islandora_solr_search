@@ -32,6 +32,8 @@ class IslandoraSolrQueryProcessor {
 
 
   //default implementation for solr search.  You can configure others in the block config settings
+  // TODO: Remove the display portions of this function.  They have been moved elsewhere, and
+  // the output of this function is no longer used.
   function buildQuery($query, $fq=null, $dismax=null) {
     // Get pager variable
     $startPage = isset($_GET['page']) ? $_GET['page'] : 0;

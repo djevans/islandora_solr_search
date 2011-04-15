@@ -30,7 +30,7 @@ class IslandoraSolrResultsMaps extends IslandoraSolrResults {
    *   html output for the resultset. Note: we currently create this
    *   output manually, should refactor to use drupal forms api.
    */
-  function displayResults($results) {
+  function printResults($results) {
     $output.= '<ol start="' . ($recordStart + 1) . '">';
     global $base_url;
     if (empty($results)) {
