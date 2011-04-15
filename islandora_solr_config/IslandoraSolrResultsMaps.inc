@@ -4,6 +4,7 @@
  * contains methods to search solr and display results.  depends on Apache_Solr_Php client.
  */
 
+module_load_include('inc', 'islandora_solr_search', 'IslandoraSolrResults');
 
 /**
  * Extention of IslandoraSolrResults for templating purposes.
@@ -15,7 +16,7 @@ class IslandoraSolrResultsMaps extends IslandoraSolrResults {
   static $facetSeparator = '~';//used to separate facets in url
   static $slashReplacement = '~slsh~';// a pattern used to replace / in url's the slash breaks drupal clean url's
   public static $SEARCH_CLASS_ADVANCED_SEARCH_NUMBER_FIELDS = 5;
-  function IslandoraSolrResults() {
+  function IslandoraSolrResultsMaps() {
     module_load_include('php', 'islandora_solr_search', 'SolrPhpClient/Apache/Solr/Service');
   }
 
