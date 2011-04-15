@@ -184,7 +184,7 @@ class IslandoraSolrQueryProcessor {
     }
 
     if (method_exists($implementation, $solrFunction)) {
-      $output.= $implementation->$solrFunction($results);
+      $output.= $implementation->$solrFunction($this);
       if (variable_get('islandora_solr_search_debug_mode', 0)) { // debug dump
         drupal_set_message('Params: <br/><pre>' . print_r($this->solrParams, true) . '</pre>', 'status');
       }
