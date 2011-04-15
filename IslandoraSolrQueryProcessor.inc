@@ -30,6 +30,10 @@ class IslandoraSolrQueryProcessor {
     module_load_include('inc', 'islandora_solr_search', 'includes/common');
   }
 
+  function buildAndExecuteQuery($query, $fq=null, $dismax=null) {
+    $this->buildQuery($query, $fq, $dismax);
+    return $this->executeQuery();
+  }
 
   //default implementation for solr search.  You can configure others in the block config settings
   // TODO: Remove the display portions of this function.  They have been moved elsewhere, and
@@ -64,8 +68,6 @@ class IslandoraSolrQueryProcessor {
     // $this->solrQuery = '%20'; //so we can allow empty queries to dismax
     }
 
-    $url = variable_get('islandora_solr_search_block_url', 'http://localhost:8080/solr');
-    $pathParts = parse_url($url);
     $facetArray = array();
     $facetFields = '';
     $rawFacetVals = variable_get("islandora_solr_search_block_facets", 'dc.subject,dc.type');
@@ -83,7 +85,6 @@ class IslandoraSolrQueryProcessor {
       }
       $facetFields .= $key;
     }
-    $solr = new Apache_Solr_Service($pathParts['host'], $pathParts['port'], $pathParts['path'] . '/');
 
     //fix the query as some characters will break the search : and / slash are examples
     // $this->solrQuery = restoreSlashes($query);
@@ -119,6 +120,7 @@ class IslandoraSolrQueryProcessor {
     }
     $this->solrStart = max(0, $startPage) * $this->solrLimit;
 
+    // The breadcrumb should go in the display class
     $queryurl = "islandora/solr/search/$this->solrQuery";
     $breadcrumb_fq = $islandora_fq;
     if (strcmp($islandora_fq,"-")) {
@@ -146,16 +148,26 @@ class IslandoraSolrQueryProcessor {
     if( !empty( $breadcrumb )) $breadcrumb = array_reverse($breadcrumb);
     drupal_set_breadcrumb($breadcrumb);
 
+    $this->solrFilters = $islandora_fq;
+
     // At this point let's invoke a hook for third-party modules to mess about
     // with the query parameters if they need to.  Third party modules may alter
     // this object's query parameters if they wish.
     // module_invoke_all("islandora_solr_search_query_processor", &$this);
 
+  }
+
+  function executeQuery() {
 
     // //////////////////////////////////////////////////////////////////////////// //
     // Right here the function should be split.  One function to execute the query, //
     // another to set up pager variables and generate display.                      //
     // //////////////////////////////////////////////////////////////////////////// //
+
+    $url = variable_get('islandora_solr_search_block_url', 'http://localhost:8080/solr');
+    $pathParts = parse_url($url);
+
+    $solr = new Apache_Solr_Service($pathParts['host'], $pathParts['port'], $pathParts['path'] . '/');
 
     // This is where the query gets executed and output starts being created.
     try {
@@ -172,37 +184,36 @@ class IslandoraSolrQueryProcessor {
     $end = min(($this->solrLimit + $this->solrStart), $total);
 
     // Initialize drupal-style pager
-    islandora_solr_search_pager_init($total, $this->solrLimit);
+//    islandora_solr_search_pager_init($total, $this->solrLimit);
 
     // Render Drupal pager (top of search results)
     // $output .= theme('pager');
 
-    $output .= '<h2>Search Results</h2>';
-    $output .= '<div id="numresults">(' . ($this->solrStart + 1) . ' - ' . $end . ' of ' . $total . ')</div>';
+//    $output .= '<h2>Search Results</h2>';
+//    $output .= '<div id="numresults">(' . ($this->solrStart + 1) . ' - ' . $end . ' of ' . $total . ')</div>';
 
     // -- cut here --
-    if (class_exists($solrClass)) {
-      $implementation = new $solrClass();
-    } else {
-      drupal_set_message(t('Error loading solr results class. Class '.$solrClass.' could not be loaded. Check the Islandora Solr search blocks configuration.'), 'error');
-      return ' ';
-    }
+//    if (class_exists($solrClass)) {
+//      $implementation = new $solrClass();
+//    } else {
+//      drupal_set_message(t('Error loading solr results class. Class '.$solrClass.' could not be loaded. Check the Islandora Solr search blocks configuration.'), 'error');
+//      return ' ';
+//    }
 
-    if (method_exists($implementation, $solrFunction)) {
-      $output.= $implementation->$solrFunction($this);
-      if (variable_get('islandora_solr_search_debug_mode', 0)) { // debug dump
-        drupal_set_message('Params: <br/><pre>' . print_r($this->solrParams, true) . '</pre>', 'status');
-      }
-    } else {
-      drupal_set_message(t('Error loading solr results class. Could not find the specified method.  Check the Islandora Solr search blocks configuration.'), 'error');
-    }
+//    if (method_exists($implementation, $solrFunction)) {
+//      $output.= $implementation->$solrFunction($this);
+//      if (variable_get('islandora_solr_search_debug_mode', 0)) { // debug dump
+//        drupal_set_message('Params: <br/><pre>' . print_r($this->solrParams, true) . '</pre>', 'status');
+//      }
+//    } else {
+//      drupal_set_message(t('Error loading solr results class. Could not find the specified method.  Check the Islandora Solr search blocks configuration.'), 'error');
+//    }
     // -- end cut here --
 
     // Render Drupal pager (bottom of search results)
-    $output .= theme('pager',null,$this->solrLimit,0,null,5);
+//    $output .= theme('pager',null,$this->solrLimit,0,null,5);
 
     $this->solrFacets = $results->facet_counts->facet_fields;
-    $this->solrFilters = $islandora_fq;
     return $output;
   }
 
