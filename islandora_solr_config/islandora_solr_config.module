@@ -42,6 +42,23 @@ function islandora_solr_config_islandora_solr_primary_display() {
 }
 
 /**
+ * Implements hook_islandora_solr_secondary_display()
+ */
+function islandora_solr_config_islandora_solr_secondary_display() {
+  return array(
+    'csv' => array(
+      'name' => t('CSV'),
+      'module' => 'islandora_solr_config',
+      'file' => 'IslandoraSolrResultsCSV.inc',
+      'class' => 'IslandoraSolrResultsCSV',
+      'function' => 'printCSV',
+      'description' => 'Download complete resultset as a CSV Spreadsheet',
+      'logo' => '<img src="http://www.stdicon.com/crystal/application/vnd.ms-excel?size=32" class="islandora_solr_secondary_display_icon">',
+    ),
+  );
+}
+
+/**
  * Implementation of hook_help()
  */
 

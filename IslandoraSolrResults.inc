@@ -33,10 +33,7 @@ class IslandoraSolrResults {
     // Initialize drupal-style pager
     islandora_solr_search_pager_init($total, $solrQueryProcessor->solrLimit);
 
-    $output .= '<h2>'.$title.'</h2>';
-    $output .= '<div id="islandora_solr_result_count">(' . ($solrQueryProcessor->solrStart + 1) . ' - ' . $end . ' of ' . $total . ')</div>';
-    $output .= '<div class="content">';
-
+    // Get secondary display profiles
     $secondary_display_profiles = module_invoke_all('islandora_solr_secondary_display');
     // How about this for an expected return?
     // return array(
@@ -49,6 +46,28 @@ class IslandoraSolrResults {
     //   'description' => 'A description of the display profile',
     //   'logo' => 'Some text, some <html>, an <img>, etc used to link to this output,
     // );
+
+    if( !empty( $secondary_display_profiles )) {
+
+      $output .= "<div id='islandora_solr_secondary_display_profiles'>";
+
+      // Link in secondary display profiles
+      foreach( $secondary_display_profiles as $name => $profile ) {
+        $attributes = array('title'=>$profile['description']);
+        $query = array();
+        $query[] = drupal_query_string_encode(array('solr_profile'=>$name));
+        $output .= l( $profile['logo'], $_GET['q'], array('attributes' => $attributes, 'html' => true, 'query' => count($query) ? implode('&', $query) : NULL));
+      }
+
+      $output .= "</div>";
+
+    }
+
+    $output .= '<h2>'.$title.'</h2>';
+    $output .= '<div id="islandora_solr_result_count">(' . ($solrQueryProcessor->solrStart + 1) . ' - ' . $end . ' of ' . $total . ')</div>';
+    $output .= '<div class="content">';
+
+//    drupal_set_message(print_r($secondary_display_profiles,1));
 
     /*
      * Then, here, we need to build links to the current query under the secondary query display

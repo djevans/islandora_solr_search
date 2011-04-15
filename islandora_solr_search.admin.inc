@@ -90,6 +90,22 @@ function islandora_solr_admin_settings(&$form_state) {
     );
   }
 
+  $profiles = module_invoke_all("islandora_solr_secondary_display");
+  uksort($profiles, "sort_default_first");
+  foreach( $profiles as $machine_name => $profile ) {
+    $islandora_solr_secondary_display_options[$machine_name] = $profile['name'];
+  }
+
+  if( !empty( $islandora_solr_secondary_display_options )) {
+    $form['islandora_solr_secondary_display'] = array(
+      '#type' => 'checkboxes',
+      '#title' => t('Secondary Display Profiles'),
+      '#options' => $islandora_solr_secondary_display_options,
+      '#default_value' => variable_get( 'islandora_solr_secondary_display', array() ),
+      '#description' => "Enabled secondary output types. ",
+    );
+  }
+
   $form['islandora_solr_search_block_repeat'] = array(
     '#type' => 'textfield',
     '#title' => t('Search Field Repetition'),
