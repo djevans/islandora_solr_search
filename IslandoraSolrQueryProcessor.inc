@@ -40,6 +40,7 @@ class IslandoraSolrQueryProcessor {
     $this->solrLimit = variable_get('islandora_solr_search_num_of_results', 20);
     global $base_url, $facetArray; //used by facet block as well
 
+    // -- cut here --
     // Get display profile
     $islandora_solr_primary_display = variable_get( 'islandora_solr_primary_display', 'default' );
     $profiles = module_invoke_all("islandora_solr_primary_display");
@@ -56,9 +57,11 @@ class IslandoraSolrQueryProcessor {
     $solrClass = $profile['class'];
     $solrFunction = $profile['function'];
 
+    // -- end cut here --
+
     $this->solrQuery = replaceSlashes($query); //replace the slash so we can use this in a url without breaking drupal clean urls
     if (empty($this->solrQuery)) {
-//      $this->solrQuery = '%20'; //so we can allow empty queries to dismax
+    // $this->solrQuery = '%20'; //so we can allow empty queries to dismax
     }
 
     $url = variable_get('islandora_solr_search_block_url', 'http://localhost:8080/solr');
@@ -83,7 +86,7 @@ class IslandoraSolrQueryProcessor {
     $solr = new Apache_Solr_Service($pathParts['host'], $pathParts['port'], $pathParts['path'] . '/');
 
     //fix the query as some characters will break the search : and / slash are examples
-//    $this->solrQuery = restoreSlashes($query);
+    // $this->solrQuery = restoreSlashes($query);
 
 
     $facetlimit = variable_get('islandora_solr_search_block_facet_limit', '12');
@@ -146,7 +149,7 @@ class IslandoraSolrQueryProcessor {
     // At this point let's invoke a hook for third-party modules to mess about
     // with the query parameters if they need to.  Third party modules may alter
     // this object's query parameters if they wish.
-    module_invoke_all("islandora_solr_search_query_processor", &$this);
+    // module_invoke_all("islandora_solr_search_query_processor", &$this);
 
 
     // //////////////////////////////////////////////////////////////////////////// //
@@ -173,9 +176,11 @@ class IslandoraSolrQueryProcessor {
 
     // Render Drupal pager (top of search results)
     // $output .= theme('pager');
+
     $output .= '<h2>Search Results</h2>';
     $output .= '<div id="numresults">(' . ($this->solrStart + 1) . ' - ' . $end . ' of ' . $total . ')</div>';
 
+    // -- cut here --
     if (class_exists($solrClass)) {
       $implementation = new $solrClass();
     } else {
@@ -191,12 +196,11 @@ class IslandoraSolrQueryProcessor {
     } else {
       drupal_set_message(t('Error loading solr results class. Could not find the specified method.  Check the Islandora Solr search blocks configuration.'), 'error');
     }
+    // -- end cut here --
 
     // Render Drupal pager (bottom of search results)
     $output .= theme('pager',null,$this->solrLimit,0,null,5);
 
-    global $islandora_facets; //make facets available to the islandora facet block
-    $islandora_facets = $results->facet_counts->facet_fields;
     $this->solrFacets = $results->facet_counts->facet_fields;
     $this->solrFilters = $islandora_fq;
     return $output;

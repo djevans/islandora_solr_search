@@ -146,6 +146,9 @@ function islandora_solr_search_islandora_solr_primary_display() {
     //   'function' => 'function_name',
     //   'description' => 'A description of the display profile',
     // );
+    //
+    // Note: this class should either be, or extend, the class IslandoraSolrResults.
+    //
     'default' => array(
       'name' => t('Fields (default)'),
       'module' => 'islandora_solr_search',
