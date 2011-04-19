@@ -127,7 +127,7 @@ function islandora_solr_admin_settings(&$form_state) {
     '#title' => t('Facet Fields'),
     '#description' => t('A list of fields for faceting. An optional friendly term my be added to each solr term for a more readable display. <br />
       Each term must be on its own line, and the solr term and the friendly term must be separated with a tilde. ie <strong>yearPublished ~ Date of Publication</strong>'),
-    '#default_value' => variable_get('islandora_solr_search_block_facets', t('dc.subject ~ Subject,dc.type ~ Type')),
+    '#default_value' => variable_get('islandora_solr_search_block_facets', 'dc.subject ~ Subject,dc.type ~ Type'),
   );
 
   $form['islandora_solr_search_block_facet_min_count'] = array(

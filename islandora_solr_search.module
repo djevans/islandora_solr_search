@@ -222,7 +222,7 @@ function islandora_solr_simple_search_form() {
 
 function islandora_solr_search_block_form_validate($form, &$form_state) {
 
-  $repeat = variable_get('islandora_solr_search_block_repeat', t('3'));
+  $repeat = variable_get('islandora_solr_search_block_repeat', '3');
   $found = FALSE;
   for ($fieldNum = 1; $fieldNum <= $repeat; $fieldNum++) {
     if ($form_state['values']["fedora_terms$fieldNum"]) {
@@ -329,7 +329,7 @@ function islandora_solr_search_block_form_submit($form, &$form_state) {
   islandora_solr_search_init();
 
   $type_id = trim($form_state['values']['type']);
-  $repeat = variable_get('islandora_solr_search_block_repeat', t('3'));
+  $repeat = variable_get('islandora_solr_search_block_repeat', '3');
   $fedora_terms = array();
   $types = array();
   $booleans = array();

@@ -356,11 +356,11 @@ class IslandoraSolrResults {
     $form = array();
 
     if (!isset($repeat)) {
-      $repeat = variable_get('islandora_solr_search_block_repeat', t('3'));
+      $repeat = variable_get('islandora_solr_search_block_repeat', '3');
     }
     $var0 = explode(':', $queryArray[0]);
     $form['search_type']['type1'] = array(
-      '#title' => t(''),
+      '#title' => '',
       '#type' => 'select',
       '#options' => $types,
       '#default_value' => trim($var0[0])
@@ -368,7 +368,7 @@ class IslandoraSolrResults {
     $form['fedora_terms1'] = array(
             '#size' => '24',
             '#type' => 'textfield',
-            '#title' => t(''),
+            '#title' => '',
             '#default_value' => (count($var0) >= 2 ? restoreSlashes(trim($var0[1],'()')) : ''),
     );
     if ($repeat > 1 && $repeat < 9) { //don't want less then 2 or more then 9
@@ -378,13 +378,13 @@ class IslandoraSolrResults {
         $andorj = ( isset($andOrs[$j]) ? $andOrs[$j] : 'AND' );
         $field_and_term = explode(':', $queryArray[$t]);
         $form["andor$t"] = array(
-          '#title' => t(''),
+          '#title' => '',
           '#type' => 'select',
           '#default_value' => $andorj,
           '#options' => $andOrArray
         );
         $form['search_type']["type$i"] = array(
-          '#title' => t(''),
+          '#title' => '',
           '#type' => 'select',
           '#options' => $types,
           '#default_value' => trim($field_and_term[0])
@@ -392,7 +392,7 @@ class IslandoraSolrResults {
         $form["fedora_terms$i"] = array(
           '#size' => '24',
           '#type' => 'textfield',
-          '#title' => t(''),
+          '#title' => '',
           '#default_value' => (count($field_and_term) >= 2 ? trim($field_and_term[1], '()') : ''),
         );
       }
@@ -414,7 +414,7 @@ class IslandoraSolrResults {
     $form["islandora_simple_search_query"] = array(
                 '#size' => '24%',
                 '#type' => 'textfield',
-                '#title' => t(''),
+                '#title' => '',
                 '#default_value' => $default,
         );
     $form['submit'] = array(
@@ -426,7 +426,7 @@ class IslandoraSolrResults {
 
   function theme_solr_search_form($form) {
     if (!isset($repeat)) {
-      $repeat = variable_get('islandora_solr_search_block_repeat', t('3'));
+      $repeat = variable_get('islandora_solr_search_block_repeat', '3');
     }
 
     $output = drupal_render($form['search_type']['type1']);
