@@ -130,6 +130,14 @@ function islandora_solr_admin_settings(&$form_state) {
     '#default_value' => variable_get('islandora_solr_search_block_facets', 'dc.subject ~ Subject,dc.type ~ Type'),
   );
 
+  $form['islandora_solr_search_field_translations'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Resultset Field Name Substitutions'),
+    '#description' => t('Similar to above, this field accepts a set of "computer_name ~ Human Readable Name" pairs.  While the list of resultset fields is typically governed by the backend request handler chosen above, this section allows you to specify human-readable substitutions for the index field names returned in a query.  Note that the substitutions specified in the Search Terms and Facet Fields sections above will also be applied to search results.'),
+    '#default_value' => variable_get('islandora_solr_search_field_translations', 'dc.subject ~ Subject,dc.type ~ Type'),
+  );
+
+
   $form['islandora_solr_search_block_facet_min_count'] = array(
     '#type' => 'textfield',
     '#title' => t('Minimum facet fields responses'),

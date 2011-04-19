@@ -9,10 +9,15 @@ class IslandoraSolrResults {
   static $facetSeparator = '~'; //used to separate facets in url
   static $slashReplacement = '~slsh~'; // a pattern used to replace / in url's the slash breaks drupal clean url's
   public static $SEARCH_CLASS_ADVANCED_SEARCH_NUMBER_FIELDS = 5;
+  public $facetFieldArray = array();
+  public $searchFieldArray = array();
+  public $resultFieldArray = array();
+  public $allSubsArray = array();
 
   function IslandoraSolrResults() {
     module_load_include('php', 'islandora_solr_search', 'SolrPhpClient/Apache/Solr/Service');
     module_load_include('inc', 'islandora_solr_search', 'includes/common');
+    $this->prepFieldSubstitutions();
   }
 
 
@@ -112,8 +117,9 @@ class IslandoraSolrResults {
       $row = 0;
 
       foreach ($doc as $field => $value) {
+        $translated_field_name = isset($this->allSubsArray[$field]) ? $this->allSubsArray[$field] : $field;
         $rows[$row][] = array(
-          'data' => $field,
+          'data' => $translated_field_name,
           'header' => true,
         );
         if (is_array($value)) {
@@ -158,7 +164,7 @@ class IslandoraSolrResults {
    */
 
   function currentQuery($solrQueryProcessor) {
-    global $base_url, $facetArray;
+    global $base_url;
     $output = '';
     $islandora_fq = $solrQueryProcessor->solrFilters;
     $islandora_facets = $solrQueryProcessor->solrFacets;
@@ -222,7 +228,7 @@ class IslandoraSolrResults {
           '<img class="islandora_solr_add_remove_link" src="'.$base_url.'/'.drupal_get_path('module', 'islandora_solr_search').'/images/delete.png" alt="Remove this filter">',
           'islandora/solr/search/'.$solrQueryProcessor->solrQuery.'/'.$filter_disable.'/'. $solrQueryProcessor->solrDefType,
           array('html' => true)
-        ) . ' ' . $facetArray[$filter_name] . ($exclude ? ' != ' : ' = ') . $filter_value;
+        ) . ' ' . $this->facetFieldArray[$filter_name] . ($exclude ? ' != ' : ' = ') . $filter_value;
       }
     }
 
@@ -234,6 +240,26 @@ class IslandoraSolrResults {
     }
 
     return $output;
+
+  }
+
+  /**
+   * Function: prepFieldSubstitutions
+   *
+   * Description: reads configuration values and preps a number of key=>value
+   *   arrays for output substitution
+   */
+  function prepFieldSubstitutions() {
+    $rawFacetVals = variable_get("islandora_solr_search_block_facets", 'dc.subject ~ Subject,dc.type ~ Type');
+    $this->facetFieldArray = islandora_build_substitution_list($rawFacetVals);
+
+    $rawSearchTerms = variable_get('islandora_solr_searchterms', 'dc.title ~ Title');
+    $this->searchFieldArray = islandora_build_substitution_list($rawSearchTerms);
+
+    $rawResultFields = variable_get('islandora_solr_search_field_translations', 'dc.subject ~ Subject,dc.type ~ Type');
+    $this->resultFieldArray = islandora_build_substitution_list($rawResultFields);
+
+    $this->allSubsArray = array_merge($this->facetFieldArray, $this->searchFieldArray, $this->resultFieldArray);
 
   }
 
@@ -250,7 +276,7 @@ class IslandoraSolrResults {
    */
 
   function displayFacets($solrQueryProcessor) {
-    global $base_url, $facetArray;
+    global $base_url;
     $output = '';
     $islandora_fq = $solrQueryProcessor->solrFilters;
     $islandora_facets = $solrQueryProcessor->solrFacets;
@@ -303,7 +329,7 @@ class IslandoraSolrResults {
         }
         if( $facet_count >=2 ) {
           $facet_output .='<div class="islandora_solr_search_facet">';
-          $list_title = $facetArray[$key];
+          $list_title = $this->facetFieldArray[$key];
           $list_type = "ul";
           $list_attributes = array('class' => 'islandora_solr_search_facet_list facet_list');
           $facet_output .= theme_item_list($list_items, $list_title, $list_type, $list_attributes);

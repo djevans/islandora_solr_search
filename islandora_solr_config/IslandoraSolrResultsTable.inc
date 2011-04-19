@@ -87,7 +87,11 @@ class IslandoraSolrResultsTable extends IslandoraSolrResults {
       $count++;
     }
 
-    $header = $fields;
+    foreach( $fields as $field ) {
+      // Get human-friendly field names;
+      $translated_field_name = isset($this->allSubsArray[$field]) ? $this->allSubsArray[$field] : $field;
+      $header[] = $translated_field_name;
+    }
     array_unshift($header,'#');
     
     $rows = array();
