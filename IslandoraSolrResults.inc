@@ -214,7 +214,6 @@ class IslandoraSolrResults {
       $filter_list_attributes = array('class'=>'islandora_solr_search_filter_list filter_list');
 
       foreach( $filters as $key=>$filter ) {
-//        ddump ($filters);
         $edit_filters = $filters;
         unset($edit_filters[$key]);
         $filter_disable = implode(IslandoraSolrResults::$facetSeparator, $edit_filters);
