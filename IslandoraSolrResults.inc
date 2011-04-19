@@ -106,6 +106,7 @@ class IslandoraSolrResults {
     $type = "ol";
     $title = null;
     $recordStart = $results->response->start;
+    $limitResults = variable_get('islandora_solr_search_limit_result_fields', 0);
 
     global $base_url;
     if (empty($results)) {
@@ -117,6 +118,11 @@ class IslandoraSolrResults {
       $row = 0;
 
       foreach ($doc as $field => $value) {
+
+        if( $limitResults && empty($this->resultFieldArray[$field] ) ) {
+          continue;
+        }
+
         $translated_field_name = isset($this->allSubsArray[$field]) ? $this->allSubsArray[$field] : $field;
         $rows[$row][] = array(
           'data' => $translated_field_name,
@@ -256,7 +262,7 @@ class IslandoraSolrResults {
     $rawSearchTerms = variable_get('islandora_solr_searchterms', 'dc.title ~ Title');
     $this->searchFieldArray = islandora_build_substitution_list($rawSearchTerms);
 
-    $rawResultFields = variable_get('islandora_solr_search_field_translations', 'dc.subject ~ Subject,dc.type ~ Type');
+    $rawResultFields = variable_get('islandora_solr_search_result_fields', 'dc.subject ~ Subject,dc.type ~ Type');
     $this->resultFieldArray = islandora_build_substitution_list($rawResultFields);
 
     $this->allSubsArray = array_merge($this->facetFieldArray, $this->searchFieldArray, $this->resultFieldArray);

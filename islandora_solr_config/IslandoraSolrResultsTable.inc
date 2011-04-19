@@ -44,12 +44,17 @@ class IslandoraSolrResultsTable extends IslandoraSolrResults {
     $count = 0;
     $fields = array();
     $values = array();
+    $limitResults = variable_get('islandora_solr_search_limit_result_fields', 0);
 
     $object_link_placeholder = "~object_href~";
 
     foreach($results->response->docs as $doc) {
       unset($pid);
       foreach($doc as $field => $value) {
+
+        if( $limitResults && empty($this->resultFieldArray[$field] ) ) {
+          continue;
+        }
 
         // catches the object PID.
         if($field=='PID') {
@@ -90,7 +95,13 @@ class IslandoraSolrResultsTable extends IslandoraSolrResults {
     foreach( $fields as $field ) {
       // Get human-friendly field names;
       $translated_field_name = isset($this->allSubsArray[$field]) ? $this->allSubsArray[$field] : $field;
-      $header[] = $translated_field_name;
+      $field_array = array(
+        'data' => $translated_field_name,
+        'field' => null,
+        'sort' => null,
+        'title' => $field,
+      );
+      $header[] = $field_array;
     }
     array_unshift($header,'#');
     

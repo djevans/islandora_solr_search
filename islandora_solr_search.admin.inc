@@ -130,13 +130,20 @@ function islandora_solr_admin_settings(&$form_state) {
     '#default_value' => variable_get('islandora_solr_search_block_facets', 'dc.subject ~ Subject,dc.type ~ Type'),
   );
 
-  $form['islandora_solr_search_field_translations'] = array(
+  $form['islandora_solr_search_result_fields'] = array(
     '#type' => 'textarea',
-    '#title' => t('Resultset Field Name Substitutions'),
+    '#title' => t('Resultset Fields'),
     '#description' => t('Similar to above, this field accepts a set of "computer_name ~ Human Readable Name" pairs.  While the list of resultset fields is typically governed by the backend request handler chosen above, this section allows you to specify human-readable substitutions for the index field names returned in a query.  Note that the substitutions specified in the Search Terms and Facet Fields sections above will also be applied to search results.'),
-    '#default_value' => variable_get('islandora_solr_search_field_translations', 'dc.subject ~ Subject,dc.type ~ Type'),
+    '#default_value' => variable_get('islandora_solr_search_result_fields', 'dc.subject ~ Subject,dc.type ~ Type'),
   );
 
+  $form['islandora_solr_search_limit_result_fields'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Limit results to these fields?'),
+    '#return_value' => 1,
+    '#default_value' => variable_get('islandora_solr_search_limit_result_fields', 0),
+    '#description' => t('If checked, results displayed will be limited to the indicated fields.  If not, it will serve only as a substitution list for result field names.  <br/><strong>Note:</strong> Some display profiles may not honour this value.'),
+  );
 
   $form['islandora_solr_search_block_facet_min_count'] = array(
     '#type' => 'textfield',
