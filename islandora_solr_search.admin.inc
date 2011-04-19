@@ -111,7 +111,7 @@ function islandora_solr_admin_settings(&$form_state) {
     '#title' => t('Search Field Repetition'),
     '#size' => 5,
     '#description' => t('The number of times you would like the search blocks to be repeated'),
-    '#default_value' => variable_get('islandora_solr_search_block_repeat', t('3')),
+    '#default_value' => variable_get('islandora_solr_search_block_repeat', '3'),
   );
 
   $form['islandora_solr_searchterms'] = array(
