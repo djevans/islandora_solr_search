@@ -118,9 +118,9 @@ class IslandoraSolrQueryProcessor {
         $value = trim(substr($facet,strpos($facet,":")+1),'"');
         $options = array('html'=>true);
         $options['attributes']['title'] = $facet;
-        $crumblink = $queryurl . "/" . $breadcrumb_fq;
+        $crumblink = $queryurl . "/" . $breadcrumb_fq . (empty($this->solrDefType) ? '' : '/'.$this->solrDefType);
         $cut_fq = $this->delete_filter($islandora_fq,$facet);
-        $cutlink = $queryurl . "/" . $cut_fq;
+        $cutlink = $queryurl . "/" . $cut_fq . (empty($this->solrDefType) ? '' : '/'.$this->solrDefType);
         if( !strncmp( "-", $facet, 1 )) {
           $options['attributes']['class'] = "strikethrough";
         }
