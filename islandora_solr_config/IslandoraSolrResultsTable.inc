@@ -65,8 +65,6 @@ class IslandoraSolrResultsTable extends IslandoraSolrResults {
         }
 
         // We're going to put the object link onto the dublin-core title.
-        // Since we haven't necessarily caught the pid yet, we use the pid placeholder and 
-        // str_replace later on.
         if($field=='dc.title' || $field=='dc:title') {
           foreach ($value as $key=>$val) {
             if(isset($doc->PID)) {
