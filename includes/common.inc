@@ -116,3 +116,24 @@ function get_search_terms_array($path = NULL, $file = NULL) {
   return $types;
 }
 
+function islandora_build_substitution_list($rawFieldList) {
+  $facetArray = array();
+  $facetFields = '';
+  $lines = preg_split('/[,|\n|\r]/', $rawFieldList);
+  foreach ($lines as $line) {
+    if( $line ) {
+      $lineArray = explode('~', $line);
+      $key = trim($lineArray[0]);
+      $value = trim($lineArray[1]);
+      if (!$value) {
+        $value = $key;
+      }
+      $facetArray[$key] = $value;
+      if ($facetFields) {
+        $facetFields .= ",";
+      }
+      $facetFields .= $key;
+    }
+  }
+  return $facetArray;
+}

@@ -71,20 +71,8 @@ class IslandoraSolrQueryProcessor {
     $facetArray = array();
     $facetFields = '';
     $rawFacetVals = variable_get("islandora_solr_search_block_facets", 'dc.subject,dc.type');
-    $lines = preg_split('/[,|\n|\r]/', $rawFacetVals);
-    foreach ($lines as $line) {
-      $lineArray = explode('~', $line);
-      $key = trim($lineArray[0]);
-      $value = trim($lineArray[1]);
-      if (!$value) {
-        $value = $key;
-      }
-      $facetArray[$key] = $value;
-      if ($facetFields) {
-        $facetFields .= ",";
-      }
-      $facetFields .= $key;
-    }
+    $facetArray = islandora_build_substitution_list($rawFacetVals);
+    $facetFields = implode(",",array_keys($facetArray));
 
     //fix the query as some characters will break the search : and / slash are examples
     // $this->solrQuery = restoreSlashes($query);
