@@ -24,7 +24,7 @@ class IslandoraSolrResults {
   /**
    * Function: displayResults
    *
-   * Description: sets up display framework, including things like title, pager, breadcrumb, etc.
+   * Description: output the main body of search results.
    *
    * @param IslandoraSolrResults $solrResults
    */
