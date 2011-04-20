@@ -64,7 +64,9 @@ class IslandoraSolrQueryProcessor {
 
     // -- end cut here --
 
-    $this->solrQuery = replaceSlashes($query); //replace the slash so we can use this in a url without breaking drupal clean urls
+    //fix the query as some characters will break the search : and / slash are examples
+    $this->solrQuery = restoreSlashes($query);
+    
     if (empty($this->solrQuery)) {
     // $this->solrQuery = '%20'; //so we can allow empty queries to dismax
     }
@@ -75,8 +77,6 @@ class IslandoraSolrQueryProcessor {
     $facetArray = islandora_build_substitution_list($rawFacetVals);
     $facetFields = implode(",",array_keys($facetArray));
 
-    //fix the query as some characters will break the search : and / slash are examples
-    // $this->solrQuery = restoreSlashes($query);
 
 
     $facetlimit = variable_get('islandora_solr_search_block_facet_limit', '12');
@@ -93,7 +93,6 @@ class IslandoraSolrQueryProcessor {
 
     $debugQuery = (variable_get('islandora_solr_search_debug_mode', 0) ? "true" : null ); //any val incl. 'false' is treated as true by Solr
 
-    global $islandora_fq;
     if ($fq != NULL && $fq != '-') {
       $fq = restoreSlashes($fq); //put the slash back
       $fqs = csv_explode(IslandoraSolrQueryProcessor::$facetSeparator,$fq,'"',true);//to filter by more then one facet we will separate them by~ for nowseparate them by~ for now
@@ -115,7 +114,7 @@ class IslandoraSolrQueryProcessor {
     if (strcmp($islandora_fq,"-")) {
       foreach( csv_explode(IslandoraSolrQueryProcessor::$facetSeparator,$islandora_fq,'"',true) as $facet ) {
         $field = substr($facet,0,strpos($facet,":"));
-        $value = trim(substr($facet,strpos($facet,":")+1),'"');
+        $value = restoreSlashes(trim(substr($facet,strpos($facet,":")+1),'"'));
         $options = array('html'=>true);
         $options['attributes']['title'] = $facet;
         $crumblink = $queryurl . "/" . $breadcrumb_fq . (empty($this->solrDefType) ? '' : '/'.$this->solrDefType);

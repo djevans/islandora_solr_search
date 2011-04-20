@@ -4,7 +4,9 @@
  * Contains some non-class-specific methods and things I'm not sure where to put.
  */
 
-static $slashReplacement = "~slsh~";
+$facetSeparator = '~';
+$replacements = array("~slsh~","~plus~");
+$values = array("/","+");
 
 
 /**
@@ -42,13 +44,15 @@ function islandora_solr_search_pager_init($total, $limit = 10, $element = 0) {
 }
 
 function restoreSlashes($str) {
-  global $slashReplacement;
-  return str_replace($slashReplacement,'/',$str); //can't have a slash in the url breaks drupal clean urls
+  $replacements = array("~slsh~","~plus~");
+  $values = array("/","+");
+  return str_replace($replacements,$values,$str); //can't have a slash in the url breaks drupal clean urls
 }
 
 function replaceSlashes($str) {
-  global $slashReplacement;
-  return str_replace('/', $slashReplacement, $str); // reverse of above
+  $replacements = array("~slsh~","~plus~");
+  $values = array("/","+");
+  return str_replace($values,$replacements,$str); // reverse of above
 }
 
 

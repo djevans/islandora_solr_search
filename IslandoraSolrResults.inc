@@ -172,7 +172,7 @@ class IslandoraSolrResults {
   function currentQuery($solrQueryProcessor) {
     global $base_url;
     $output = '';
-    $islandora_fq = $solrQueryProcessor->solrFilters;
+    $islandora_fq = restoreSlashes($solrQueryProcessor->solrFilters);
     $islandora_facets = $solrQueryProcessor->solrFacets;
 
     if( strlen( trim( $solrQueryProcessor->solrQuery ) ) ) {
@@ -283,7 +283,7 @@ class IslandoraSolrResults {
   function displayFacets($solrQueryProcessor) {
     global $base_url;
     $output = '';
-    $islandora_fq = $solrQueryProcessor->solrFilters;
+    $islandora_fq = restoreSlashes($solrQueryProcessor->solrFilters);
     $islandora_facets = $solrQueryProcessor->solrFacets;
 
     if(empty($islandora_facets)) {
@@ -302,7 +302,7 @@ class IslandoraSolrResults {
         $filter_exclude = null;
         foreach($field as $name=>$number) {
           if($islandora_fq && $islandora_fq != '-') {//there are existing facets in the query
-            $disable_link = strstr($islandora_fq,$key.':"'.str_replace('/',IslandoraSolrResults::$slashReplacement,$name).'"');//we don't want a link for this facet as we already used it
+            $disable_link = strstr($islandora_fq,$key.':"'.replaceSlashes($name).'"');//we don't want a link for this facet as we already used it
             if($disable_link) { 
               //don't show link to this facet but include a link to remove it
             } else {
@@ -313,8 +313,8 @@ class IslandoraSolrResults {
             $filter_include = $key . ':' . '"'.$name.'"';
             $filter_exclude = '-'.$key . ':' . '"'.$name.'"';
           }
-          $filter_include = str_replace('/',IslandoraSolrResults::$slashReplacement,$filter_include);//replace the slash so url does not break
-          $filter_exclude = str_replace('/',IslandoraSolrResults::$slashReplacement,$filter_exclude);//replace the slash so url does not break
+          $filter_include = replaceSlashes($filter_include);//replace the slash so url does not break
+          $filter_exclude = replaceSlashes($filter_exclude);//replace the slash so url does not break
           if($disable_link) {
             // we don't want to create a link, because we're already filtering on this value.
             // Links to remove enabled facet filters are created down below.
