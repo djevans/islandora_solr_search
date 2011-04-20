@@ -28,7 +28,7 @@ class IslandoraSolrResultsCSV extends IslandoraSolrResults {
    *   html output for the resultset. Note: we currently create this
    *   output manually, should refactor to use drupal forms api.
    */
-  function printCSV($solrQueryProcessor, $title = "Search Results", $output = '') {
+  function printCSV($solrQueryProcessor, $title = "Search Results") {
 
     // First off, update limits and re-query
     $solrQueryProcessor->solrLimit = $solrQueryProcessor->solrResult->response->numFound;
@@ -107,11 +107,6 @@ class IslandoraSolrResultsCSV extends IslandoraSolrResults {
         }
       }
     }
-
-    $output = array(
-      'header' => $header,
-      'rows' => $rows,
-    );
 
     drupal_set_header('Content-Type: text/csv');
     drupal_set_header('Content-Disposition: attachment; filename="searchresults.csv"');
