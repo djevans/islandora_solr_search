@@ -142,6 +142,7 @@ class IslandoraSolrQueryProcessor {
     // with the query parameters if they need to.  Third party modules may alter
     // this object's query parameters if they wish.
     // module_invoke_all("islandora_solr_search_query_processor", &$this);
+    return;
 
   }
 
