@@ -136,6 +136,8 @@ class IslandoraSolrResultsCSV extends IslandoraSolrResults {
       print implode($seperator, $row) . "\r\n";
     }
 
+    drupal_set_message("Exported ".($count+1)." records from index to CSV");
+
     exit;
 
   }
