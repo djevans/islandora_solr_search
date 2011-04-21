@@ -116,7 +116,7 @@ class IslandoraSolrResultsTable extends IslandoraSolrResults {
         'header' => true,
       );
       foreach ($fields as $field) {
-        if (!empty ($val_array[$field])) {
+        if (isset ($val_array[$field])) {
           $rows[$row][] = $val_array[$field];
         } else {
           $rows[$row][] = '';
