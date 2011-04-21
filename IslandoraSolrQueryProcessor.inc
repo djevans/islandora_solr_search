@@ -36,8 +36,6 @@ class IslandoraSolrQueryProcessor {
   }
 
   //default implementation for solr search.  You can configure others in the block config settings
-  // TODO: Remove the display portions of this function.  They have been moved elsewhere, and
-  // the output of this function is no longer used.
   // TODO: Get rid of the global $facetArray?  It is the only global yet relied upon.
   function buildQuery($query, $fq=null, $dismax=null) {
     // Get pager variable
@@ -173,38 +171,8 @@ class IslandoraSolrQueryProcessor {
     $total = (int) $results->response->numFound;
     $end = min(($this->solrLimit + $this->solrStart), $total);
 
-    // Initialize drupal-style pager
-//    islandora_solr_search_pager_init($total, $this->solrLimit);
-
-    // Render Drupal pager (top of search results)
-    // $output .= theme('pager');
-
-//    $output .= '<h2>Search Results</h2>';
-//    $output .= '<div id="numresults">(' . ($this->solrStart + 1) . ' - ' . $end . ' of ' . $total . ')</div>';
-
-    // -- cut here --
-//    if (class_exists($solrClass)) {
-//      $implementation = new $solrClass();
-//    } else {
-//      drupal_set_message(t('Error loading solr results class. Class '.$solrClass.' could not be loaded. Check the Islandora Solr search blocks configuration.'), 'error');
-//      return ' ';
-//    }
-
-//    if (method_exists($implementation, $solrFunction)) {
-//      $output.= $implementation->$solrFunction($this);
-//      if (variable_get('islandora_solr_search_debug_mode', 0)) { // debug dump
-//        drupal_set_message('Params: <br/><pre>' . print_r($this->solrParams, true) . '</pre>', 'status');
-//      }
-//    } else {
-//      drupal_set_message(t('Error loading solr results class. Could not find the specified method.  Check the Islandora Solr search blocks configuration.'), 'error');
-//    }
-    // -- end cut here --
-
-    // Render Drupal pager (bottom of search results)
-//    $output .= theme('pager',null,$this->solrLimit,0,null,5);
-
     $this->solrFacets = $results->facet_counts->facet_fields;
-    return $output;
+    return;
   }
 
 
