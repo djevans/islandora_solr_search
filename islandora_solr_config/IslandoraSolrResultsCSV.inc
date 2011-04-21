@@ -30,18 +30,18 @@ class IslandoraSolrResultsCSV extends IslandoraSolrResults {
    */
   function printCSV($solrQueryProcessor, $title = "Search Results") {
 
-    // First off, update limits and re-query
-    $solrQueryProcessor->solrLimit = $solrQueryProcessor->solrResult->response->numFound;
-    $solrQueryProcessor->solrStart = 0;
-
-    $solrQueryProcessor->executeQuery();
-
-    $results = $solrQueryProcessor->solrResult;
+    // Note: solrLimit is really stating the number of rows wanted,
+    // not the row number of the upper limit document.  That is, if you
+    // want results 40-60, you set solrStart=40, solrLimit=20 -- *not*
+    // solrStart=40, solrLimit=60.
 
     global $base_url;
-    if(empty($results)) {
-      return "";
-    }
+
+    // First off, update outer limits
+    $upperLimit = $solrQueryProcessor->solrResult->response->numFound;
+    $lowerLimit = 0;
+    $increment = 5000; // typical failure point with 256M seems around 10000-15000
+
     $row_count = 0;
     $field_counts = array();
     $values = array();
@@ -49,33 +49,53 @@ class IslandoraSolrResultsCSV extends IslandoraSolrResults {
     $seperator = ",";
     $wrap = '"';
     $replace_value = '""';
-    
 
-    foreach($results->response->docs as $doc) {
-      foreach($doc as $field => $value) {
+    $solrQueryProcessor->solrStart = $lowerLimit;
+    $solrQueryProcessor->solrLimit = $increment;
 
-        // Sometimes we get a single value, sometimes an array.
-        // For simplicity, I push the singles into an array and later on process each
-        // field as an array.
-        if(!is_array($value)) {
-          $value = array($value);
-        }
-        
-        $field_count = count($value);
+    while( $solrQueryProcessor->solrStart < $upperLimit ) {
 
-        if( !isset( $field_counts[$field] )) {
-          $field_counts[$field] = $field_count;
-        }
-        else {
-          $field_counts[$field] = max($field_counts[$field], $field_count);
-        }
+      // Perform the incremental re-query.
+      $solrQueryProcessor->executeQuery();
 
-        $values[$row_count][$field] = $value;
+      // Update incremental limits for the next round.
+      $solrQueryProcessor->solrStart += $increment;
+
+      $results = $solrQueryProcessor->solrResult;
+
+      // If there are no results, skip ahead (i.e. exit).
+      if(empty($results)) {
+        continue;
       }
-      $row_count++;
+
+      foreach($results->response->docs as $doc) {
+        foreach($doc as $field => $value) {
+
+          // Sometimes we get a single value, sometimes an array.
+          // For simplicity, I push the singles into an array and later on process each
+          // field as an array.
+          if(!is_array($value)) {
+            $value = array($value);
+          }
+
+          $field_count = count($value);
+
+          if( !isset( $field_counts[$field] )) {
+            $field_counts[$field] = $field_count;
+          }
+          else {
+            $field_counts[$field] = max($field_counts[$field], $field_count);
+          }
+
+          $values[$row_count][$field] = $value;
+        }
+        $row_count++;
+      }
+
     }
 
 
+    $header = array();
     $rows = array();
     $row = 0;
 
