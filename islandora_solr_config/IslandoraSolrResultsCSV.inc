@@ -40,7 +40,9 @@ class IslandoraSolrResultsCSV extends IslandoraSolrResults {
     // First off, update outer limits
     $upperLimit = $solrQueryProcessor->solrResult->response->numFound;
     $lowerLimit = 0;
-    $increment = 5000; // typical failure point with 256M seems around 10000-15000
+    $increment = 2000;
+    // typical failure point for an unbounded query seems to be around 10000-15000,
+    // but we must allow for the every-growing output memory structure.
 
     $row_count = 0;
     $field_counts = array();
@@ -56,6 +58,7 @@ class IslandoraSolrResultsCSV extends IslandoraSolrResults {
     while( $solrQueryProcessor->solrStart < $upperLimit ) {
 
       // Perform the incremental re-query.
+      $solrQueryProcessor->resetResults();
       $solrQueryProcessor->executeQuery();
 
       // Update incremental limits for the next round.
@@ -90,8 +93,9 @@ class IslandoraSolrResultsCSV extends IslandoraSolrResults {
           $values[$row_count][$field] = $value;
         }
         $row_count++;
+        unset($doc); // unknown value
       }
-
+      unset($results); // unknown value
     }
 
 

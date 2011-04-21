@@ -146,6 +146,11 @@ class IslandoraSolrQueryProcessor {
 
   }
 
+  function resetResults() {
+    unset($this->solrResult);
+    unset($this->solrFacets);
+  }
+
   function executeQuery() {
 
     // //////////////////////////////////////////////////////////////////////////// //
@@ -157,6 +162,7 @@ class IslandoraSolrQueryProcessor {
     $pathParts = parse_url($url);
 
     $solr = new Apache_Solr_Service($pathParts['host'], $pathParts['port'], $pathParts['path'] . '/');
+    $solr->setCreateDocuments(0);
 
     // This is where the query gets executed and output starts being created.
     try {
@@ -169,10 +175,9 @@ class IslandoraSolrQueryProcessor {
       drupal_set_message(t('Error searching solr index. Is the solr search block configured properly?'), 'error');
       return ' ';
     }
-    $total = (int) $results->response->numFound;
-    $end = min(($this->solrLimit + $this->solrStart), $total);
 
     $this->solrFacets = $results->facet_counts->facet_fields;
+    unset($solr);
     return;
   }
 
