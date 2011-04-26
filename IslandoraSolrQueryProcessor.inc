@@ -176,7 +176,6 @@ class IslandoraSolrQueryProcessor {
 
     unset($results);
     unset($solr);
-    gc_collect_cycles();
     
     return;
     

@@ -113,8 +113,6 @@ class IslandoraSolrResultsCSV extends IslandoraSolrResults {
 
     fseek($docfile,0);
 
-    gc_collect_cycles();
-
     $header = array();
     $rows = array();
 
