@@ -177,8 +177,12 @@ class IslandoraSolrQueryProcessor {
     }
 
     $this->solrFacets = $results->facet_counts->facet_fields;
+    unset($results);
     unset($solr);
+    gc_collect_cycles();
+    
     return;
+    
   }
 
 
