@@ -171,7 +171,7 @@ class IslandoraSolrQueryProcessor {
     $this->solrResult = $results;
     if (empty($results)) {
       drupal_set_message(t('Error searching solr index. Is the solr search block configured properly?'), 'error');
-      return ' ';
+      return;
     }
 
     unset($results);
