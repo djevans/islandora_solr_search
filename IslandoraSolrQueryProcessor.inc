@@ -21,7 +21,6 @@ class IslandoraSolrQueryProcessor {
   public $solrStart;
   public $solrLimit;
   public $solrDefType;
-  public $solrFacets;
   public $solrFilters;
   public $solrResult;
 
@@ -148,7 +147,6 @@ class IslandoraSolrQueryProcessor {
 
   function resetResults() {
     unset($this->solrResult);
-    unset($this->solrFacets);
   }
 
   function executeQuery() {
@@ -176,7 +174,6 @@ class IslandoraSolrQueryProcessor {
       return ' ';
     }
 
-    $this->solrFacets = $results->facet_counts->facet_fields;
     unset($results);
     unset($solr);
     gc_collect_cycles();

@@ -173,7 +173,7 @@ class IslandoraSolrResults {
     global $base_url;
     $output = '';
     $islandora_fq = restoreSlashes($solrQueryProcessor->solrFilters);
-    $islandora_facets = $solrQueryProcessor->solrFacets;
+    $islandora_facets = $solrQueryProcessor->solrResult->facet_counts->facet_fields;
 
     if( strlen( trim( $solrQueryProcessor->solrQuery ) ) ) {
 
@@ -284,7 +284,7 @@ class IslandoraSolrResults {
     global $base_url;
     $output = '';
     $islandora_fq = restoreSlashes($solrQueryProcessor->solrFilters);
-    $islandora_facets = $solrQueryProcessor->solrFacets;
+    $islandora_facets = $solrQueryProcessor->solrResult->facet_counts->facet_fields;
 
     if(empty($islandora_facets)) {
       return $output; //no facets to show
