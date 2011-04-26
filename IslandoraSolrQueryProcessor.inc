@@ -106,7 +106,7 @@ class IslandoraSolrQueryProcessor {
     $this->solrStart = max(0, $startPage) * $this->solrLimit;
 
     // The breadcrumb should go in the display class
-    $queryurl = "islandora/solr/search/$this->solrQuery";
+    $queryurl = "islandora/solr/search/".replaceSlashes($this->solrQuery);
     $breadcrumb_fq = $islandora_fq;
     if (strcmp($islandora_fq,"-")) {
       foreach( csv_explode(IslandoraSolrQueryProcessor::$facetSeparator,$islandora_fq,'"',true) as $facet ) {

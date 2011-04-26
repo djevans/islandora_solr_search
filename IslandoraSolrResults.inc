@@ -188,7 +188,7 @@ class IslandoraSolrResults {
       // and allow one part to be removed at a time.
       $query_list_items[] .= l(
         '<img class="islandora_solr_add_remove_link" src="'.$base_url.'/'.drupal_get_path('module', 'islandora_solr_search').'/images/delete.png" alt="Remove search term">',
-        'islandora/solr/search/'." ".'/'.$islandora_fq.'/dismax',
+        'islandora/solr/search/'." ".'/'.replaceSlashes($islandora_fq).'/dismax',
         array('html' => true)
       ).' ' . stripslashes($solrQueryProcessor->solrQuery);
 
@@ -231,7 +231,7 @@ class IslandoraSolrResults {
         }
         $filter_list_items[] = l(
           '<img class="islandora_solr_add_remove_link" src="'.$base_url.'/'.drupal_get_path('module', 'islandora_solr_search').'/images/delete.png" alt="Remove this filter">',
-          'islandora/solr/search/'.$solrQueryProcessor->solrQuery.'/'.$filter_disable.'/'. $solrQueryProcessor->solrDefType,
+          'islandora/solr/search/'.replaceSlashes($solrQueryProcessor->solrQuery).'/'.replaceSlashes($filter_disable).'/'. $solrQueryProcessor->solrDefType,
           array('html' => true)
         ) . ' ' . $this->facetFieldArray[$filter_name] . ($exclude ? ' != ' : ' = ') . $filter_value;
       }
