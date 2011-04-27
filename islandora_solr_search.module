@@ -225,7 +225,7 @@ function islandora_solr_search_block_form_validate($form, &$form_state) {
   $repeat = variable_get('islandora_solr_search_block_repeat', '3');
   $found = FALSE;
   for ($fieldNum = 1; $fieldNum <= $repeat; $fieldNum++) {
-    if ($form_state['values']["fedora_terms$fieldNum"]) {
+    if (isset($form_state['values']["fedora_terms$fieldNum"])) {
       $found = TRUE;
     }
   }
