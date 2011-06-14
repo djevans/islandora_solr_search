@@ -52,20 +52,42 @@ class IslandoraSolrResults {
     //   'logo' => 'Some text, some <html>, an <img>, etc used to link to this output,
     // );
 
-    if( !empty( $secondary_display_profiles )) {
+    // check if 
 
+    // if the islandora_solr_search admin form has never been saved, then 
+    // the variable 'islandora_solr_secondary_display' won't be set yet.
+    $secondary_array = variable_get( 'islandora_solr_secondary_display', array() );
+    
+    // count number of elements in array
+    $array_count = count($secondary_array); 
+    // count number of disabled displays
+    $i = 0;
+    foreach ($secondary_array as $key => $value) {
+      if ($value === 0) {
+        $i++;
+      }
+    }
+    
+    // if number of elements is the same as the number of disabled displays,
+    // this means that there are no displays enabled. 
+    if ($array_count != $i) {
+       
       $output .= "<div id='islandora_solr_secondary_display_profiles'>";
 
-      // Link in secondary display profiles
-      foreach( $secondary_display_profiles as $name => $profile ) {
-        $attributes = array('title'=>$profile['description']);
-        $query = array();
-        $query[] = drupal_query_string_encode(array('solr_profile'=>$name));
-        $output .= l( $profile['logo'], $_GET['q'], array('attributes' => $attributes, 'html' => true, 'query' => count($query) ? implode('&', $query) : NULL));
+      foreach ($secondary_array as $name => $status) {
+        if ($status === $name) {
+             
+          $description = $secondary_display_profiles[$name]['description'];
+          $logo = $secondary_display_profiles[$name]['logo'];
+          
+          $attributes = array('title' => $description);
+          $query = array();
+          $query[] = drupal_query_string_encode(array('solr_profile'=>$name));
+          $output .= l( $logo, $_GET['q'], array('attributes' => $attributes, 'html' => true, 'query' => count($query) ? implode('&', $query) : NULL));
+        }
       }
-
+      
       $output .= "</div>";
-
     }
 
     $output .= '<h2>'.$title.'</h2>';
@@ -170,11 +192,13 @@ class IslandoraSolrResults {
    */
 
   function currentQuery($solrQueryProcessor) {
+  //dsm($solrQueryProcessor);
     global $base_url;
     $output = '';
     $islandora_fq = restoreSlashes($solrQueryProcessor->solrFilters);
+    
     $islandora_facets = $solrQueryProcessor->solrResult->facet_counts->facet_fields;
-
+    //dsm($islandora_facets);
     if( strlen( trim( $solrQueryProcessor->solrQuery ) ) ) {
 
       // Variables to build a drupal-ish unordered list
