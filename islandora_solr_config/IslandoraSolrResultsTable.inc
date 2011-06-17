@@ -16,8 +16,8 @@ class IslandoraSolrResultsTable extends IslandoraSolrResults {
   static $facetSeparator = '~';//used to separate facets in url
   static $slashReplacement = '~slsh~';// a pattern used to replace / in url's the slash breaks drupal clean url's
   public static $SEARCH_CLASS_ADVANCED_SEARCH_NUMBER_FIELDS = 5;
-  function IslandoraSolrResults() {
-    module_load_include('php', 'islandora_solr_search', 'Solr/Service');
+  function IslandoraSolrResultsTable() {
+    parent::__construct();
   }
 
   /**
@@ -35,7 +35,7 @@ class IslandoraSolrResultsTable extends IslandoraSolrResults {
    *   html output for the resultset. Note: we currently create this 
    *   output manually, should refactor to use drupal forms api.
    */
-  function displayResults($results){
+  function printResults($results){
     global $base_url;
     $recordStart = (int)$results->response->start;
     if(empty($results)) {
@@ -44,12 +44,18 @@ class IslandoraSolrResultsTable extends IslandoraSolrResults {
     $count = 0;
     $fields = array();
     $values = array();
+    $header = array();
+    $limitResults = variable_get('islandora_solr_search_limit_result_fields', 0);
 
     $object_link_placeholder = "~object_href~";
 
     foreach($results->response->docs as $doc) {
       unset($pid);
       foreach($doc as $field => $value) {
+
+        if( $limitResults && empty($this->resultFieldArray[$field] ) ) {
+          continue;
+        }
 
         // catches the object PID.
         if($field=='PID') {
@@ -65,8 +71,6 @@ class IslandoraSolrResultsTable extends IslandoraSolrResults {
         }
 
         // We're going to put the object link onto the dublin-core title.
-        // Since we haven't necessarily caught the pid yet, we use the pid placeholder and 
-        // str_replace later on.
         if($field=='dc.title' || $field=='dc:title') {
           foreach ($value as $key=>$val) {
             if(isset($doc->PID)) {
@@ -89,7 +93,17 @@ class IslandoraSolrResultsTable extends IslandoraSolrResults {
       $count++;
     }
 
-    $header = $fields;
+    foreach( $fields as $field ) {
+      // Get human-friendly field names;
+      $translated_field_name = isset($this->allSubsArray[$field]) ? $this->allSubsArray[$field] : $field;
+      $field_array = array(
+        'data' => $translated_field_name,
+        'field' => null,
+        'sort' => null,
+        'title' => $field,
+      );
+      $header[] = $field_array;
+    }
     array_unshift($header,'#');
     
     $rows = array();
@@ -103,7 +117,7 @@ class IslandoraSolrResultsTable extends IslandoraSolrResults {
         'header' => true,
       );
       foreach ($fields as $field) {
-        if (!empty ($val_array[$field])) {
+        if (isset ($val_array[$field])) {
           $rows[$row][] = $val_array[$field];
         } else {
           $rows[$row][] = '';

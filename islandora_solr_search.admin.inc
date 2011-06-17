@@ -7,8 +7,7 @@
 function islandora_solr_admin_settings(&$form_state) {
 
   //checks for existence of PHP Solr client.
-
-  module_load_include('php', 'islandora_solr_search', 'Solr/Service');
+  module_load_include('php', 'islandora_solr_search', 'SolrPhpClient/Apache/Solr/Service');
   if (!class_exists(Apache_Solr_Service)) {
     drupal_set_message("This module requires the " . l('Apache Solr php client', 'http://code.google.com/p/solr-php-client') . '.
       Please install the client directory in the root directory of this module before continuing.');
@@ -43,7 +42,7 @@ function islandora_solr_admin_settings(&$form_state) {
   $form['solr_ahah_wrapper']['islandora_solr_search_block_url'] = array(
     '#type' => 'textfield',
     '#title' => t('Solr url'),
-    '#size' => 25,
+    '#size' => 40,
     '#weight' => -1,
     '#description' => t('The url of the Solr installation.  Defaults to localhost:8080/solr.'),
     '#default_value' => $solr_url,
@@ -72,23 +71,47 @@ function islandora_solr_admin_settings(&$form_state) {
     '#title' => t('Request Handler'),
     '#options' => $handlers,
     '#description' => t('Request handlers defined by !config', array('!config' => l('solrconfig.xml', 'http://wiki.apache.org/solr/SolrConfigXml' ))),
-    '#default_value' => variable_get('islandora_solr_search_block_request_handler', t('standard')),
+    '#default_value' => variable_get('islandora_solr_search_block_request_handler', 'standard'),
   );
 
-  $form['islandora_solr_config_options'] = array(
-    '#type' => 'select',
-    '#title' => t('Configuration package'),
-    '#multiple' => false,
-    '#options' => $config_options,
-    '#description' => t('Name of configuration package for displaying output.'),
-    '#default_value' => variable_get('islandora_solr_config_options', 'islandora_solr_search~IslandoraSolrResults.inc~IslandoraSolrResults~displayResults'),
-  );
+  $profiles = module_invoke_all("islandora_solr_primary_display");
+  uksort($profiles, "sort_default_first");
+  foreach( $profiles as $machine_name => $profile ) {
+    $islandora_solr_primary_display_options[$machine_name] = $profile['name'];
+  }
+
+  if( !empty( $islandora_solr_primary_display_options )) {
+    $form['islandora_solr_primary_display'] = array(
+      '#type' => 'radios',
+      '#title' => t('Default Display Profile'),
+      '#options' => $islandora_solr_primary_display_options,
+      '#default_value' => variable_get( 'islandora_solr_primary_display', 'default' ),
+      '#description' => "Preferred normal display profile for search results.  These may be provided by third-party modules. ",
+    );
+  }
+
+  $profiles = module_invoke_all("islandora_solr_secondary_display");
+  uksort($profiles, "sort_default_first");
+  foreach( $profiles as $machine_name => $profile ) {
+    $islandora_solr_secondary_display_options[$machine_name] = $profile['name'];
+  }
+
+  if( !empty( $islandora_solr_secondary_display_options )) {
+    $form['islandora_solr_secondary_display'] = array(
+      '#type' => 'checkboxes',
+      '#title' => t('Secondary Display Profiles'),
+      '#options' => $islandora_solr_secondary_display_options,
+      '#default_value' => variable_get( 'islandora_solr_secondary_display', array() ),
+      '#description' => "Enabled secondary output types. ",
+    );
+  }
+
   $form['islandora_solr_search_block_repeat'] = array(
     '#type' => 'textfield',
     '#title' => t('Search Field Repetition'),
     '#size' => 5,
     '#description' => t('The number of times you would like the search blocks to be repeated'),
-    '#default_value' => variable_get('islandora_solr_search_block_repeat', t('3')),
+    '#default_value' => variable_get('islandora_solr_search_block_repeat', '3'),
   );
 
   $form['islandora_solr_searchterms'] = array(
@@ -103,8 +126,23 @@ function islandora_solr_admin_settings(&$form_state) {
     '#type' => 'textarea',
     '#title' => t('Facet Fields'),
     '#description' => t('A list of fields for faceting. An optional friendly term my be added to each solr term for a more readable display. <br />
-      Each term must be on its own line, and the solr term and the friendly term must be separated with a tilde. ie <strong>yearPublished ~ Date of Publication</strong'),
-    '#default_value' => variable_get('islandora_solr_search_block_facets', t('dc.subject ~ Subject,dc.type ~ Type')),
+      Each term must be on its own line, and the solr term and the friendly term must be separated with a tilde. ie <strong>yearPublished ~ Date of Publication</strong>'),
+    '#default_value' => variable_get('islandora_solr_search_block_facets', 'dc.subject ~ Subject,dc.type ~ Type'),
+  );
+
+  $form['islandora_solr_search_result_fields'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Resultset Fields'),
+    '#description' => t('Similar to above, this field accepts a set of "computer_name ~ Human Readable Name" pairs.  While the list of resultset fields is typically governed by the backend request handler chosen above, this section allows you to specify human-readable substitutions for the index field names returned in a query.  Note that the substitutions specified in the Search Terms and Facet Fields sections above will also be applied to search results.'),
+    '#default_value' => variable_get('islandora_solr_search_result_fields', 'dc.subject ~ Subject,dc.type ~ Type'),
+  );
+
+  $form['islandora_solr_search_limit_result_fields'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Limit results to these fields?'),
+    '#return_value' => 1,
+    '#default_value' => variable_get('islandora_solr_search_limit_result_fields', 0),
+    '#description' => t('If checked, results displayed will be limited to the indicated fields.  If not, it will serve only as a substitution list for result field names.  <br/><strong>Note:</strong> Some display profiles may not honour this value.'),
   );
 
   $form['islandora_solr_search_block_facet_min_count'] = array(
@@ -264,9 +302,26 @@ function solr_settings_form_submit($form, &$form_state) {
   drupal_rebuild_theme_registry();
 }
 
+
 function solr_admin_refresh($form, &$form_state) {
   $values = $form_state['values'];
   unset($form_state['submit_handlers']);
   form_execute_handlers('submit', $form, $form_state);
   $form_state['rebuild'] = TRUE;
+}
+
+/**
+ * Function sort_default_first
+ * 
+ * Description: sorts two values by strcasecmp, with the special begaviour that 
+ * the value "default" sorts before any other value.
+ * 
+ * @param <string> $a
+ * @param <string> $b
+ * @return <int> 
+ */
+function sort_default_first($a, $b) {
+  if( !strcasecmp($a, 'default' )) return -1;
+  if( !strcasecmp($b, 'default' )) return 1;
+  return strcasecmp($a,$b);
 }

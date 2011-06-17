@@ -53,7 +53,6 @@ img.islandora_solr_add_remove_link
 }
 table.islandora_solr_search_results_table
 {
-  font-size: 80%;
 }
 table.islandora_solr_search_results_table tr
 {
@@ -65,12 +64,31 @@ table.islandora_solr_search_results_table tr td
   padding: 0 2px;
 }
 
+.islandora_solr_search_breadcrumb_super
+{
+  vertical-align: super;
+  font-size: smaller;
+}
+
 .islandora_solr_search_facet {
 }
 
 .islandora_solr_search_facet .plusminus {
   float:right;
 }
+
+#islandora_solr_secondary_display_profiles {
+  float:right;
+}
+
+img.islandora_solr_secondary_display_icon {
+  vertical-align: bottom;
+}
+
 html.js .refresh-button {
   display: none;
+}
+
+.strikethrough {
+  text-decoration: line-through !important;
 }

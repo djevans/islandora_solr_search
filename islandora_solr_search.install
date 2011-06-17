@@ -25,7 +25,7 @@
 function islandora_solr_search_requirements($phase) {
   $t = get_t();
   $requirements = array();
-  module_load_include('php', 'islandora_solr_search', 'Solr/Service');
+  module_load_include('php', 'islandora_solr_search', 'SolrPhpClient/Apache/Solr/Service');
   if ($phase == 'install') {
 
 

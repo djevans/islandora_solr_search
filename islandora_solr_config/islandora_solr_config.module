@@ -10,20 +10,53 @@
 
 
 /**
- * Implementation of hook_alter_form.
- * Adds this module's configuration options to islandora_solr_search's configuration page.
+ * Implements hook_islandora_solr_primary_display()
  */
-
-function islandora_solr_config_form_islandora_solr_admin_settings_alter(&$form, &$form_state) {
-  $module   = 'islandora_solr_config';
-  $file     = 'IslandoraSolrResultsTable.inc';
-  $class    = 'IslandoraSolrResultsTable';
-  $method   = 'displayResults';
-  $config_options = $form['islandora_solr_config_options']['#options'];
-  $config_options["${module}~${file}~${class}~${method}"] = 'Table';
-  $form['islandora_solr_config_options']['#options'] = $config_options;
+function islandora_solr_config_islandora_solr_primary_display() {
+  return array(
+    // 'machien-name' = array(
+    //   'name' => 'Human Readable Name',
+    //   'module' => 'module_name',
+    //   'file' => 'FileName.inc',
+    //   'class' => 'ClassName',
+    //   'function' => 'function_name',
+    //   'description' => 'A description of the display profile',
+    // );
+    'simple_table' => array(
+      'name' => t('Simple Table'),
+      'module' => 'islandora_solr_config',
+      'file' => 'IslandoraSolrResultsTable.inc',
+      'class' => "IslandoraSolrResultsTable",
+      'function' => "displayResults",
+      'description' => t("A simple tabular output"),
+    ),
+    'maps' => array(
+      'name' => t('Maps'),
+      'module' => 'islandora_solr_config',
+      'file' => 'IslandoraSolrResultsTable.inc',
+      'class' => "IslandoraSolrResultsTable",
+      'function' => "displayResults",
+      'description' => t('A tabular output for maps. Depends upon the existence of a TN datastream in fedora objects returned as results.')
+    ),
+  );
 }
 
+/**
+ * Implements hook_islandora_solr_secondary_display()
+ */
+function islandora_solr_config_islandora_solr_secondary_display() {
+  return array(
+    'csv' => array(
+      'name' => t('CSV'),
+      'module' => 'islandora_solr_config',
+      'file' => 'IslandoraSolrResultsCSV.inc',
+      'class' => 'IslandoraSolrResultsCSV',
+      'function' => 'printCSV',
+      'description' => 'Download complete resultset as a CSV Spreadsheet',
+      'logo' => '<img src="http://www.stdicon.com/crystal/application/vnd.ms-excel?size=32" class="islandora_solr_secondary_display_icon">',
+    ),
+  );
+}
 
 /**
  * Implementation of hook_help()
