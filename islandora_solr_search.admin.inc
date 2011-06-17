@@ -120,6 +120,7 @@ function islandora_solr_admin_settings(&$form_state) {
     '#description' => t('A list of fields to populate the terms dropdown for the fielded search block. An optional friendly term my be added to each solr term for a more readable display. <br />
       Each term must be on its own line, and the solr term and the friendly term must be separated with a tilde. ie <strong>dc.title ~ Title</strong> '),
     '#default_value' => variable_get('islandora_solr_searchterms', 'dc.title ~ Title'),
+    '#wysiwyg' => FALSE,
   );
 
   $form['islandora_solr_search_block_facets'] = array(
@@ -128,6 +129,7 @@ function islandora_solr_admin_settings(&$form_state) {
     '#description' => t('A list of fields for faceting. An optional friendly term my be added to each solr term for a more readable display. <br />
       Each term must be on its own line, and the solr term and the friendly term must be separated with a tilde. ie <strong>yearPublished ~ Date of Publication</strong>'),
     '#default_value' => variable_get('islandora_solr_search_block_facets', 'dc.subject ~ Subject,dc.type ~ Type'),
+    '#wysiwyg' => FALSE,
   );
 
   $form['islandora_solr_search_result_fields'] = array(
@@ -135,6 +137,7 @@ function islandora_solr_admin_settings(&$form_state) {
     '#title' => t('Resultset Fields'),
     '#description' => t('Similar to above, this field accepts a set of "computer_name ~ Human Readable Name" pairs.  While the list of resultset fields is typically governed by the backend request handler chosen above, this section allows you to specify human-readable substitutions for the index field names returned in a query.  Note that the substitutions specified in the Search Terms and Facet Fields sections above will also be applied to search results.'),
     '#default_value' => variable_get('islandora_solr_search_result_fields', 'dc.subject ~ Subject,dc.type ~ Type'),
+    '#wysiwyg' => FALSE,
   );
 
   $form['islandora_solr_search_limit_result_fields'] = array(
