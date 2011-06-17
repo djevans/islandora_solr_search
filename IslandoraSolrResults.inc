@@ -35,6 +35,13 @@ class IslandoraSolrResults {
     $total = (int) $apacheSolrResult->response->numFound;
     $end = min(($solrQueryProcessor->solrLimit + $solrQueryProcessor->solrStart), $total);
 
+    // Check for empty resultset
+    if( $total === 0 ) {
+      $output  = "<h2>Search Results</h2>";
+      $output .= "<div>Sorry, but your search returned no results.</div>";
+      return $output;
+    }
+
     // Initialize drupal-style pager
     islandora_solr_search_pager_init($total, $solrQueryProcessor->solrLimit);
 
