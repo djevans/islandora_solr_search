@@ -116,6 +116,10 @@ class IslandoraSolrQueryProcessor {
     $breadcrumb_fq = $islandora_fq;
     if (strcmp($islandora_fq, "-")) {
       foreach (csv_explode(IslandoraSolrQueryProcessor::$facetSeparator, $islandora_fq, '"', true) as $facet) {
+        if (preg_match('/PID:.*\*/', $facet)){
+          continue;
+
+        }
         $field = substr($facet, 0, strpos($facet, ":"));
         $value = restoreSlashes(trim(substr($facet, strpos($facet, ":") + 1), '"'));
         $options = array('html' => true);
