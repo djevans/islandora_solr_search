@@ -95,9 +95,11 @@ class IslandoraSolrQueryProcessor {
 
 
     $debugQuery = (variable_get('islandora_solr_search_debug_mode', 0) ? "true" : null ); //any val incl. 'false' is treated as true by Solr
+   // $fq = preg_replace('/PID:.*\*/', '', $fq);
 
     if ($fq != NULL && $fq != '-') {
       $fq = restoreSlashes($fq); //put the slash back
+  
       $fqs = csv_explode(IslandoraSolrQueryProcessor::$facetSeparator, $fq, '"', true); //to filter by more then one facet we will separate them by~ for nowseparate them by~ for now
       $this->solrParams['fq'] = $fqs;
       $islandora_fq = replaceSlashes($fq); //remove the slash here as we will be using this in url's
@@ -116,10 +118,6 @@ class IslandoraSolrQueryProcessor {
     $breadcrumb_fq = $islandora_fq;
     if (strcmp($islandora_fq, "-")) {
       foreach (csv_explode(IslandoraSolrQueryProcessor::$facetSeparator, $islandora_fq, '"', true) as $facet) {
-        if (preg_match('/PID:.*\*/', $facet)){
-          continue;
-
-        }
         $field = substr($facet, 0, strpos($facet, ":"));
         $value = restoreSlashes(trim(substr($facet, strpos($facet, ":") + 1), '"'));
         $options = array('html' => true);
@@ -137,7 +135,13 @@ class IslandoraSolrQueryProcessor {
     }
     if (!empty($this->solrQuery) && strcmp($this->solrQuery, ' ')) {
       $cutlink = "islandora/solr/search/ /" . $islandora_fq . "/dismax";
-      $queryval = trim(substr($this->solrQuery, strpos($this->solrQuery, ":") + 1), ")(");
+      $queryval = $this->solrQuery;
+      $tokens = explode(" ", $queryval);
+      foreach ($tokens as $token) {
+        preg_match("/^.*:/", $token, $matches);
+        $queryval = str_replace($matches[0], "", $queryval);
+      }
+  
       $breadcrumb[] = l($queryval, $queryurl . "/-", array('attributes' => array('title' => $this->solrQuery))) .
           " <span class='islandora_solr_search_breadcrumb_super'>(" . l("x", $cutlink, array('attributes' => array('title' => "Remove " . $facet))) . ")</span>";
     }
