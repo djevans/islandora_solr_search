@@ -31,6 +31,7 @@ class IslandoraSolrQueryProcessor {
   function buildAndExecuteQuery($query, $fq=null, $dismax=null) {
 
     if (variable_get('islandora_solr_search_block_request_handler') == 'standard') {
+      $dismax=null;
       $namespace = trim(variable_get('solr_namespace_restriction'));
       if ($namespace) {
         if (strpos($fq, "PID:$namespace") === FALSE) {
@@ -95,7 +96,7 @@ class IslandoraSolrQueryProcessor {
 
 
     $debugQuery = (variable_get('islandora_solr_search_debug_mode', 0) ? "true" : null ); //any val incl. 'false' is treated as true by Solr
-   // $fq = preg_replace('/PID:.*\*/', '', $fq);
+    $fq = preg_replace('/PID:.*\*/', '', $fq);
 
     if ($fq != NULL && $fq != '-') {
       $fq = restoreSlashes($fq); //put the slash back
