@@ -1,9 +1,13 @@
 <?php
 
-/*
- * contains methods to search solr and display results.  depends on Apache_Solr_Php client.
+/**
+ * @file
+ * Contains methods to search solr and display results.  depends on Apache_Solr_Php client.
  */
 
+/**
+ * Islandora Solr Results
+ */
 class IslandoraSolrResults {
 
   static $facetSeparator = '~'; //used to separate facets in url
@@ -14,6 +18,9 @@ class IslandoraSolrResults {
   public $resultFieldArray = array();
   public $allSubsArray = array();
 
+  /**
+   * Constructor
+   */
   function IslandoraSolrResults() {
     module_load_include('php', 'islandora_solr_search', 'SolrPhpClient/Apache/Solr/Service');
     module_load_include('inc', 'islandora_solr_search', 'includes/common');
@@ -22,11 +29,12 @@ class IslandoraSolrResults {
 
 
   /**
-   * Function: displayResults
+   * Output the main body of the search results
    *
-   * Description: output the main body of search results.
-   *
-   * @param IslandoraSolrResults $solrResults
+   * @param type $solrQueryProcessor
+   * @param type $title
+   * @param type $output
+   * @return string 
    */
   function displayResults($solrQueryProcessor, $title = "Search Results", $output = '') {
 
