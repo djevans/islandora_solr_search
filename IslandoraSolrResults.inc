@@ -462,7 +462,7 @@ class IslandoraSolrResults {
 
   function build_simple_solr_form() {
     $required = FALSE;
-    if (variable_get('islandora_solr_search_block_request_handler') == 'standard') {
+    if (variable_get('islandora_solr_search_block_request_handler', '') == 'standard') {
       $required = TRUE;
     }
     global $islandora_query;
