@@ -45,9 +45,17 @@ class IslandoraSolrQueryProcessor {
 
     if (variable_get('islandora_solr_search_block_request_handler', NULL) == 'standard') {
       $namespace = trim(variable_get('solr_namespace_restriction', NULL));
+      if (!$query || $query == ' ') {
+        $query = '%252F';
+      }
+      $dismax = null;
+
       if ($namespace) {
         if (strpos($fq, "PID:$namespace") === FALSE) {
-          $fq = "PID:$namespace*";
+          if ($fq) {
+            $fq .= $this->facetSeparator;
+          }
+          $fq .= "PID:$namespace*";
         }
       }
     }
@@ -109,9 +117,11 @@ class IslandoraSolrQueryProcessor {
 
 
     $debugQuery = (variable_get('islandora_solr_search_debug_mode', 0) ? "true" : null ); //any val incl. 'false' is treated as true by Solr
+    $fq = preg_replace('/PID:.*\*/', '', $fq);
 
     if ($fq != NULL && $fq != '-') {
       $fq = restoreSlashes($fq); //put the slash back
+
       $fqs = csv_explode(IslandoraSolrQueryProcessor::$facetSeparator, $fq, '"', true); //to filter by more then one facet we will separate them by~ for nowseparate them by~ for now
       $this->solrParams['fq'] = $fqs;
       $islandora_fq = replaceSlashes($fq); //remove the slash here as we will be using this in url's
@@ -147,9 +157,16 @@ class IslandoraSolrQueryProcessor {
     }
     if (!empty($this->solrQuery) && strcmp($this->solrQuery, ' ')) {
       $cutlink = "islandora/solr/search/ /" . $islandora_fq . "/dismax";
-      $queryval = trim(substr($this->solrQuery, strpos($this->solrQuery, ":") + 1), ")(");
-      $breadcrumb[] = l($queryval, $queryurl . "/-", array('attributes' => array('title' => $this->solrQuery))) .
-          " <span class='islandora_solr_search_breadcrumb_super'>(" . l("x", $cutlink, array('attributes' => array('title' => "Remove " . $facet))) . ")</span>";
+      $queryval = $this->solrQuery;
+      $tokens = explode(" ", $queryval);
+      foreach ($tokens as $token) {
+        preg_match("/^.*:/", $token, $matches);
+        $queryval = str_replace($matches[0], "", $queryval);
+      }
+      if ($queryval != '%252F') {
+        $breadcrumb[] = l($queryval, $queryurl . "/-", array('attributes' => array('title' => $this->solrQuery))) .
+            " <span class='islandora_solr_search_breadcrumb_super'>(" . l("x", $cutlink, array('attributes' => array('title' => "Remove " . $facet))) . ")</span>";
+      }
     }
     $breadcrumb[] = l(t('Home'), NULL);
     if (!empty($breadcrumb))

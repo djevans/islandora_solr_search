@@ -65,8 +65,11 @@ class IslandoraSolrResults {
     //   'description' => 'A description of the display profile',
     //   'logo' => 'Some text, some <html>, an <img>, etc used to link to this output,
     // );
+
     // check if 
     // if the islandora_solr_search admin form has never been saved, then 
+
+
     // the variable 'islandora_solr_secondary_display' won't be set yet.
     $secondary_array = variable_get('islandora_solr_secondary_display', array());
 
@@ -220,7 +223,11 @@ class IslandoraSolrResults {
       // In the future, we could reasonably break the query on boolean operators
       // and allow one part to be removed at a time.
       $query_list_items[] .= l(
-              '<img class="islandora_solr_add_remove_link" src="' . $base_url . '/' . drupal_get_path('module', 'islandora_solr_search') . '/images/delete.png" alt="Remove search term">', 'islandora/solr/search/' . " " . '/' . replaceSlashes($islandora_fq) . '/dismax', array('html' => true)
+
+              '<img class="islandora_solr_add_remove_link" src="' . $base_url . '/' . drupal_get_path('module', 'islandora_solr_search') . '/images/delete.png" alt="Remove search term">',
+              'islandora/solr/search/' . " " . '/' . replaceSlashes($islandora_fq) . '/dismax',
+              array('html' => true)
+
           ) . ' ' . stripslashes($solrQueryProcessor->solrQuery);
 
       $output .= '<div class="islandora_solr_search_query_wrap">';
@@ -260,7 +267,11 @@ class IslandoraSolrResults {
           $filter_name = substr($filter_name, 1);
         }
         $filter_list_items[] = l(
-                '<img class="islandora_solr_add_remove_link" src="' . $base_url . '/' . drupal_get_path('module', 'islandora_solr_search') . '/images/delete.png" alt="Remove this filter">', 'islandora/solr/search/' . replaceSlashes($solrQueryProcessor->solrQuery) . '/' . replaceSlashes($filter_disable) . '/' . $solrQueryProcessor->solrDefType, array('html' => true)
+
+                '<img class="islandora_solr_add_remove_link" src="' . $base_url . '/' . drupal_get_path('module', 'islandora_solr_search') . '/images/delete.png" alt="Remove this filter">',
+                'islandora/solr/search/' . replaceSlashes($solrQueryProcessor->solrQuery) . '/' . replaceSlashes($filter_disable) . '/' . $solrQueryProcessor->solrDefType,
+                array('html' => true)
+
             ) . ' ' . $this->facetFieldArray[$filter_name] . ($exclude ? ' != ' : ' = ') . $filter_value;
       }
     }
@@ -334,11 +345,13 @@ class IslandoraSolrResults {
               $filter_include = $key . ':' . '"' . $name . '"' . IslandoraSolrResults::$facetSeparator . $islandora_fq;
               $filter_exclude = '-' . $key . ':' . '"' . $name . '"' . IslandoraSolrResults::$facetSeparator . $islandora_fq;
             }
+
           }
           else { //no existing facets chosen
             $filter_include = $key . ':' . '"' . $name . '"';
             $filter_exclude = '-' . $key . ':' . '"' . $name . '"';
           }
+
           $filter_include = replaceSlashes($filter_include); //replace the slash so url does not break
           $filter_exclude = replaceSlashes($filter_exclude); //replace the slash so url does not break
           if ($disable_link) {
@@ -392,6 +405,7 @@ class IslandoraSolrResults {
    * @return string 
    */
   function build_solr_search_form($repeat = NULL, $pathToSearchTerms = NULL, $query = NULL) {
+
     $types = array();
     $terms = trim(variable_get('islandora_solr_searchterms', 'dc.title ~ Title,dc.subject ~ Subject'));
     $termsArray = preg_split('/[\n]/', $terms);
@@ -476,6 +490,10 @@ class IslandoraSolrResults {
    * @return type 
    */
   function build_simple_solr_form() {
+    $required = FALSE;
+    if (variable_get('islandora_solr_search_block_request_handler', '') == 'standard') {
+      $required = TRUE;
+    }
     global $islandora_query;
     if (!strpos($islandora_query, ':')) {
       $default = $islandora_query;
@@ -486,6 +504,9 @@ class IslandoraSolrResults {
       '#type' => 'textfield',
       '#title' => '',
       '#default_value' => $default,
+
+      '#required' => $required,
+
     );
     $form['submit'] = array(
       '#type' => 'submit',
@@ -519,6 +540,9 @@ class IslandoraSolrResults {
     $output .= drupal_render($form);
     return $output;
   }
+
+
+
 
 }
 

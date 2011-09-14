@@ -70,7 +70,7 @@ function islandora_solr_admin_settings(&$form_state) {
     '#type' => 'select',
     '#title' => t('Request Handler'),
     '#options' => $handlers,
-    '#description' => t('Request handlers defined by !config', array('!config' => l('solrconfig.xml', 'http://wiki.apache.org/solr/SolrConfigXml'))),
+    '#description' => t('Request handlers as defined by !config', array('!config' => l('solrconfig.xml', 'http://wiki.apache.org/solr/SolrConfigXml'))),
     '#default_value' => $handler,
     '#ahah' => array(
       'path' => 'islandora/solr/process',
@@ -117,7 +117,7 @@ function islandora_solr_admin_settings(&$form_state) {
       '#title' => t('Secondary Display Profiles'),
       '#options' => $islandora_solr_secondary_display_options,
       '#default_value' => variable_get('islandora_solr_secondary_display', array()),
-      '#description' => "Enabled secondary output types. ",
+      '#description' => "Enabled secondary output/download types for search results.",
     );
   }
 
@@ -125,15 +125,17 @@ function islandora_solr_admin_settings(&$form_state) {
     '#type' => 'textfield',
     '#title' => t('Search Field Repetition'),
     '#size' => 5,
-    '#description' => t('The number of times you would like the search blocks to be repeated'),
+    '#description' => t('The number of fields you would like to have appear in the <strong>Solr Advanced Search Block</strong>'),
     '#default_value' => variable_get('islandora_solr_search_block_repeat', '3'),
   );
 
   $form['islandora_solr_searchterms'] = array(
     '#type' => 'textarea',
     '#title' => t('Search Terms'),
-    '#description' => t('A list of fields to populate the terms dropdown for the fielded search block. An optional friendly term my be added to each solr term for a more readable display. <br />
-      Each term must be on its own line, and the solr term and the friendly term must be separated with a tilde. ie <strong>dc.title ~ Title</strong> '),
+    '#description' => t("Indicate what fields should appear in the dropdown menu of terms for the <strong>Solr Advanced Search Block</strong>.<br />
+      Enter terms on separate lines using the following pattern: field [tilde] preferred label. ie <strong>dc.title ~ Title</strong><br />
+      Review the schema.xml to see what terms are available. A list of the fields available when using the schema.xml packaged with the Islandora Solr
+      module is available in Islandora's online documentation."),
     '#default_value' => variable_get('islandora_solr_searchterms', 'dc.title ~ Title'),
     '#wysiwyg' => FALSE,
   );
@@ -141,47 +143,48 @@ function islandora_solr_admin_settings(&$form_state) {
   $form['islandora_solr_search_block_facets'] = array(
     '#type' => 'textarea',
     '#title' => t('Facet Fields'),
-    '#description' => t('A list of fields for faceting. An optional friendly term my be added to each solr term for a more readable display. <br />
-      Each term must be on its own line, and the solr term and the friendly term must be separated with a tilde. ie <strong>yearPublished ~ Date of Publication</strong>'),
-    '#default_value' => variable_get('islandora_solr_search_block_facets', 'dc.subject ~ Subject,dc.type ~ Type'),
+    '#description' => t("Indicate which fields will appear in the <strong>Islandora Facet Block</strong>.<br />
+      Enter terms on separate lines using the following pattern: field [tilde] preferred label. ie <strong>dc.title ~ Title</strong> "),
     '#wysiwyg' => FALSE,
   );
 
   $form['islandora_solr_search_result_fields'] = array(
     '#type' => 'textarea',
-    '#title' => t('Resultset Fields'),
-    '#description' => t('Similar to above, this field accepts a set of "computer_name ~ Human Readable Name" pairs.  While the list of resultset fields is typically governed by the backend request handler chosen above, this section allows you to specify human-readable substitutions for the index field names returned in a query.  Note that the substitutions specified in the Search Terms and Facet Fields sections above will also be applied to search results.'),
+    '#title' => t('Labels for Returned Fields'),
+    '#description' => t('Set labels for fields returned from query.
+      Enter terms on separate lines using the following pattern: field [tilde] preferred label. ie <strong>dc.title ~ Title</strong>'),
     '#default_value' => variable_get('islandora_solr_search_result_fields', 'dc.subject ~ Subject,dc.type ~ Type'),
     '#wysiwyg' => FALSE,
   );
 
   $form['islandora_solr_search_limit_result_fields'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Limit results to these fields?'),
+    '#title' => t('Limit results to fields listed above?'),
     '#return_value' => 1,
     '#default_value' => variable_get('islandora_solr_search_limit_result_fields', 0),
-    '#description' => t('If checked, results displayed will be limited to the indicated fields.  If not, it will serve only as a substitution list for result field names.  <br/><strong>Note:</strong> Some display profiles may not honour this value.'),
+    '#description' => t('If checked, results displayed will be limited to the fields specified above.<br/><strong>Note:</strong> Some display profiles may not honour this value.'),
   );
 
   $form['islandora_solr_search_block_facet_min_count'] = array(
     '#type' => 'textfield',
-    '#title' => t('Minimum facet fields responses'),
+    '#title' => t('Minimum Results to Display Facet'),
     '#size' => 5,
-    '#description' => t('This param indicates the minimum counts for facet fields should be included in the response. '),
+    '#description' => t('Minimum facet count required for display'),
     '#default_value' => variable_get('islandora_solr_search_block_facet_min_count', '2'),
   );
   $form['islandora_solr_search_block_facet_limit'] = array(
     '#type' => 'textfield',
-    '#title' => t('Maximum facet field constraints'),
+    '#title' => t('Maximum Facets returned'),
     '#size' => 5,
-    '#description' => t('This param indicates the maximum number of constraint counts that should be returned for the facet fields. A negative value means unlimited. '),
+    '#description' => t('Set the number of terms that should be returned to the user.<br />
+      For example, if there are 100 possible subjects in a faceted result, you may wish to return only the top 10.'),
     '#default_value' => variable_get('islandora_solr_search_block_facet_limit', '10'),
   );
   $form['islandora_solr_search_num_of_results'] = array(
     '#type' => 'textfield',
     '#title' => t('Results per page'),
     '#size' => 5,
-    '#description' => t('This param indicates the number of results to show per page. '),
+    '#description' => t('The number of results to show per page. '),
     '#default_value' => variable_get('islandora_solr_search_num_of_results', '20'),
   );
   $form['islandora_solr_search_debug_mode'] = array(
@@ -189,7 +192,7 @@ function islandora_solr_admin_settings(&$form_state) {
     '#title' => t('Debug Mode?'),
     '#return_value' => 1,
     '#default_value' => variable_get('islandora_solr_search_debug_mode', 0),
-    '#description' => t('Dumps solr query info to the screen for testing purposes.'),
+    '#description' => t('Dumps solr query to the screen for testing'),
   );
 
   $form['buttons']['submit'] = array('#type' => 'submit', '#value' => t('Save Solr Configuration'));
