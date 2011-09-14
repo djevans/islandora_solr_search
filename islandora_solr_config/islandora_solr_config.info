@@ -4,4 +4,4 @@ dependencies[] = islandora_solr_search
 description = Customizes Islandora solr search
 package = Islandora
 version = 6.1
-core = 6.1
+core = 6.x
