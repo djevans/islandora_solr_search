@@ -21,6 +21,7 @@ function islandora_solr_admin_settings(&$form_state) {
   if ($solr_avail) {
     $handlers = get_handlers($solr_url);
   }
+  $dismax_allowed = check_dismax($solr_url, $handler);
   // optional config modules will use hook_alter_form to add to this array
 
   $config_options = array();
@@ -120,6 +121,11 @@ function islandora_solr_admin_settings(&$form_state) {
       '#description' => "Enabled secondary output/download types for search results.",
     );
   }
+
+  $form['dismax_allowed'] = array(
+    '#type' => 'checkboxes',
+    '#value' => $dismax_allowed
+  );
 
   $form['islandora_solr_search_block_repeat'] = array(
     '#type' => 'textfield',
@@ -248,6 +254,29 @@ function get_handlers($solr_url) {
     }
   }
   return $handlers;
+}
+
+function check_dismax($solr_url, $selected_handler) {
+  $dismax = false;
+  $url = $solr_url . '/admin/file/?file=solrconfig.xml';
+  $ch = curl_init();
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+  curl_setopt($ch, CURLOPT_URL, $url);
+  $xml = simplexml_load_string(curl_exec($ch));
+  foreach ($xml->requestHandler as $handler) {
+    if ($handler['class'] == 'solr.SearchHandler') {
+      if ((string) $handler['name'] == $selected_handler) {
+        foreach ($handler->lst as $first) {
+          foreach ($first->str as $str) {
+            if ($str['name'] == 'qf') {
+              $dismax= true;
+            }
+          }
+        }
+      }
+    }
+  }
+  return $dismax;
 }
 
 /**

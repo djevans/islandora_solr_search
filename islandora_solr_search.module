@@ -249,7 +249,10 @@ function islandora_solr_simple_search_form_submit($form, &$form_state) {
   $searchString = $form_state['values']['islandora_simple_search_query'];
   $searchString = htmlspecialchars(drupal_urlencode($searchString), ENT_QUOTES, 'utf-8', false);
   $searchString = str_replace('/', '~slsh~', $searchString); //replace the slash so url doesn't break
-  drupal_goto("islandora/solr/search/$searchString/-/dismax");
+  if (variable_get('dismax_allowed', FALSE)) {
+    $dismax = 'dismax';
+  }
+  drupal_goto("islandora/solr/search/$searchString/-/$dismax");
 }
 
 /**
@@ -399,7 +402,7 @@ function islandora_solr_search_help($path, $arg) {
   switch ($path) {
     case 'admin/help#islandora_solr_search':
       return t(
-              '<p>
+          '<p>
          The Islandora Solr Search extends the functionality of the Fedora_Repository module.
          This module allows one or more of a series of blocks to be configured to search a solr index.
          This module can co-exist with the original Fedora_Repositories search block, but Solr\'s
@@ -418,11 +421,11 @@ function islandora_solr_search_help($path, $arg) {
            <li>The Islandora Solr Simple Search Block will use will add  defType=dismax to the configured request handler. The request handler tag in <b>solrconfig.xml</b> must have an attribute of <b>default="true"</b>.</li>
          </ul>
         ', array(
-            '!guide' => l('Islandora Guide', 'https://wiki.duraspace.org/display/ISLANDORA/Islandora+Guide'),
-            '!sWiki' => l("Solr Wiki", 'http://wiki.apache.org/solr/SolrTomcat'),
-            '!GSearch' => l('GSearch Documentation', 'https://wiki.duraspace.org/display/FCSVCS/Generic+Search+Service+2.2'),
-            '!client' => l('Apache Solr php client', 'http://code.google.com/p/solr-php-client'),
-              )
+        '!guide' => l('Islandora Guide', 'https://wiki.duraspace.org/display/ISLANDORA/Islandora+Guide'),
+        '!sWiki' => l("Solr Wiki", 'http://wiki.apache.org/solr/SolrTomcat'),
+        '!GSearch' => l('GSearch Documentation', 'https://wiki.duraspace.org/display/FCSVCS/Generic+Search+Service+2.2'),
+        '!client' => l('Apache Solr php client', 'http://code.google.com/p/solr-php-client'),
+          )
       );
   }
 }

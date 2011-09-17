@@ -38,7 +38,6 @@ class IslandoraSolrResults {
   function displayResults($solrQueryProcessor, $title = "Search Results", $output = '') {
 
     $apacheSolrResult = $solrQueryProcessor->solrResult;
-
     $total = (int) $apacheSolrResult->response->numFound;
     $end = min(($solrQueryProcessor->solrLimit + $solrQueryProcessor->solrStart), $total);
 
@@ -65,11 +64,8 @@ class IslandoraSolrResults {
     //   'description' => 'A description of the display profile',
     //   'logo' => 'Some text, some <html>, an <img>, etc used to link to this output,
     // );
-
-    // check if 
-    // if the islandora_solr_search admin form has never been saved, then 
-
-
+    // check if
+    // if the islandora_solr_search admin form has never been saved, then
     // the variable 'islandora_solr_secondary_display' won't be set yet.
     $secondary_array = variable_get('islandora_solr_secondary_display', array());
 
@@ -208,7 +204,6 @@ class IslandoraSolrResults {
     global $base_url;
     $output = '';
     $islandora_fq = restoreSlashes($solrQueryProcessor->solrFilters);
-
     $islandora_facets = $solrQueryProcessor->solrResult->facet_counts->facet_fields;
     //dsm($islandora_facets);
     if (strlen(trim($solrQueryProcessor->solrQuery))) {
@@ -223,11 +218,9 @@ class IslandoraSolrResults {
       // In the future, we could reasonably break the query on boolean operators
       // and allow one part to be removed at a time.
       $query_list_items[] .= l(
-
               '<img class="islandora_solr_add_remove_link" src="' . $base_url . '/' . drupal_get_path('module', 'islandora_solr_search') . '/images/delete.png" alt="Remove search term">',
               'islandora/solr/search/' . " " . '/' . replaceSlashes($islandora_fq) . '/dismax',
               array('html' => true)
-
           ) . ' ' . stripslashes($solrQueryProcessor->solrQuery);
 
       $output .= '<div class="islandora_solr_search_query_wrap">';
@@ -267,11 +260,9 @@ class IslandoraSolrResults {
           $filter_name = substr($filter_name, 1);
         }
         $filter_list_items[] = l(
-
                 '<img class="islandora_solr_add_remove_link" src="' . $base_url . '/' . drupal_get_path('module', 'islandora_solr_search') . '/images/delete.png" alt="Remove this filter">',
                 'islandora/solr/search/' . replaceSlashes($solrQueryProcessor->solrQuery) . '/' . replaceSlashes($filter_disable) . '/' . $solrQueryProcessor->solrDefType,
                 array('html' => true)
-
             ) . ' ' . $this->facetFieldArray[$filter_name] . ($exclude ? ' != ' : ' = ') . $filter_value;
       }
     }
@@ -345,7 +336,6 @@ class IslandoraSolrResults {
               $filter_include = $key . ':' . '"' . $name . '"' . IslandoraSolrResults::$facetSeparator . $islandora_fq;
               $filter_exclude = '-' . $key . ':' . '"' . $name . '"' . IslandoraSolrResults::$facetSeparator . $islandora_fq;
             }
-
           }
           else { //no existing facets chosen
             $filter_include = $key . ':' . '"' . $name . '"';
@@ -504,9 +494,7 @@ class IslandoraSolrResults {
       '#type' => 'textfield',
       '#title' => '',
       '#default_value' => $default,
-
       '#required' => $required,
-
     );
     $form['submit'] = array(
       '#type' => 'submit',
@@ -540,9 +528,6 @@ class IslandoraSolrResults {
     $output .= drupal_render($form);
     return $output;
   }
-
-
-
 
 }
 

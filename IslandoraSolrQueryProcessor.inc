@@ -48,7 +48,6 @@ class IslandoraSolrQueryProcessor {
       if (!$query || $query == ' ') {
         $query = '%252F';
       }
-      $dismax = null;
 
       if ($namespace) {
         if (strpos($fq, "PID:$namespace") === FALSE) {
