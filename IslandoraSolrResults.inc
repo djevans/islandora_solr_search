@@ -306,7 +306,7 @@ class IslandoraSolrResults {
     global $base_url;
     $facet_output = $output = '';
     $islandora_fq = $solrQueryProcessor->solrFilters;
-    $islandora_facets = $solrQueryProcessor->solrResult->facet_counts->facet_fields;
+    $islandora_facets = isset($solrQueryProcessor->solrResult->facet_counts->facet_fields);
 
     if (empty($islandora_facets)) {
       return $output; //no facets to show
