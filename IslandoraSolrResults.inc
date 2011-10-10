@@ -175,7 +175,7 @@ class IslandoraSolrResults {
       }
       $items[] = theme_table(null, $rows, array('class' => 'islandora_solr_search_results_object'));
     }
-    $output .= theme_item_list($items, $title, $type, array('class' => 'stuff', 'start' => ($recordStart + 1)));
+    $output = theme_item_list($items, $title, $type, array('class' => 'stuff', 'start' => ($recordStart + 1)));
     if (variable_get('islandora_solr_search_debug_mode', 0)) { // debug dump
       $results_r .= "<pre>Results: " . print_r($results, true) . "</pre>";
       $fieldset_r = array(
