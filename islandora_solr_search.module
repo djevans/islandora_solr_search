@@ -18,7 +18,7 @@ $queryClass;
 function islandora_solr_search_menu() {
   $items['islandora/solr/search'] = array(
     'page callback' => 'islandora_solr_search',
-    'access arguments' => array('view fedora collection'), //depends of islandora_repository view
+    'access arguments' => array('view fedora collection'), //depends of fedora_repository view
     'type' => MENU_CALLBACK,
   );
 
