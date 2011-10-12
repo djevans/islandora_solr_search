@@ -163,7 +163,9 @@ class IslandoraSolrQueryProcessor {
       $tokens = explode(" ", $queryval);
       foreach ($tokens as $token) {
         preg_match("/^.*:/", $token, $matches);
-        $queryval = str_replace($matches[0], "", $queryval);
+        if (isset($matches[0])) {
+          $queryval = str_replace($matches[0], "", $queryval);
+        }
       }
       if ($queryval != '%252F') {
         $breadcrumb[] = l($queryval, $queryurl . "/-", array('attributes' => array('title' => $this->solrQuery))) .
