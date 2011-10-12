@@ -442,27 +442,26 @@ class IslandoraSolrResults {
         $t = $i - 1;
         $j = $i - 2;
         $andorj = ( isset($andOrs[$j]) ? $andOrs[$j] : 'AND' );
-        if (isset($queryArray[$t])) {
-          $field_and_term = explode(':', $queryArray[$t]);
-          $form["andor$t"] = array(
-            '#title' => '',
-            '#type' => 'select',
-            '#default_value' => $andorj,
-            '#options' => $andOrArray
-          );
-          $form['search_type']["type$i"] = array(
-            '#title' => '',
-            '#type' => 'select',
-            '#options' => $types,
-            '#default_value' => trim($field_and_term[0])
-          );
-          $form["fedora_terms$i"] = array(
-            '#size' => '24',
-            '#type' => 'textfield',
-            '#title' => '',
-            '#default_value' => (count($field_and_term) >= 2 ? trim($field_and_term[1], '()') : ''),
-          );
-        }
+
+        $field_and_term = isset($queryArray[$t]) ? explode(':', $queryArray[$t]) : array('', '');
+        $form["andor$t"] = array(
+          '#title' => '',
+          '#type' => 'select',
+          '#default_value' => $andorj,
+          '#options' => $andOrArray
+        );
+        $form['search_type']["type$i"] = array(
+          '#title' => '',
+          '#type' => 'select',
+          '#options' => $types,
+          '#default_value' => trim($field_and_term[0])
+        );
+        $form["fedora_terms$i"] = array(
+          '#size' => '24',
+          '#type' => 'textfield',
+          '#title' => '',
+          '#default_value' => (count($field_and_term) >= 2 ? trim($field_and_term[1], '()') : ''),
+        );
       }
     }
 
