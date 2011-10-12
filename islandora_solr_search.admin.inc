@@ -228,9 +228,9 @@ function solr_available($solr_url) {
   $path = 'http://' . $pathParts['host'] . ':' . $pathParts['port'] . $pathParts['path'] . '/admin/file';
   $test = @fopen($path, "r");
   if ($test) {
-    return true;
+    return TRUE;
   }
-  return false;
+  return FALSE;
 }
 
 /**
@@ -257,7 +257,7 @@ function get_handlers($solr_url) {
 }
 
 function check_dismax($solr_url, $selected_handler) {
-  $dismax = false;
+  $dismax = FALSE;
   $url = $solr_url . '/admin/file/?file=solrconfig.xml';
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
@@ -269,7 +269,7 @@ function check_dismax($solr_url, $selected_handler) {
         foreach ($handler->lst as $first) {
           foreach ($first->str as $str) {
             if ($str['name'] == 'qf') {
-              $dismax= true;
+              $dismax= TRUE;
             }
           }
         }
@@ -317,7 +317,7 @@ function callback_prep() {
  * Solr settings from submin
  * @param array $form
  * @param array $form_state
- * @return null
+ * @return NULL
  */
 function solr_settings_form_submit($form, &$form_state) {
 
