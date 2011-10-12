@@ -322,6 +322,7 @@ class IslandoraSolrResults {
         unset($normal_facet_output);
         $filter_include = null;
         $filter_exclude = null;
+        //$disable_link = FALSE;
         foreach ($field as $name => $number) {
           if ($islandora_fq && $islandora_fq != '-') {//there are existing facets in the query
             $disable_link = strstr($islandora_fq, $key . ':"' . replaceSlashes($name) . '"'); //we don't want a link for this facet as we already used it
