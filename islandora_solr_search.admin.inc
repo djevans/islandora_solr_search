@@ -124,7 +124,7 @@ function islandora_solr_admin_settings(&$form_state) {
 
   //Notice: Undefined index: #options in expand_checkboxes() (line 1930 of /Applications/MAMP/htdocs/drupal-6.22/includes/form.inc).
   $form['dismax_allowed'] = array(
-    '#type' => 'checkboxes',
+    '#type' => 'hidden',
     '#value' => variable_get('dismax_allowed', $dismax_allowed),
   );
 
