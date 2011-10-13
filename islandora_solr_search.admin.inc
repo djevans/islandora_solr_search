@@ -123,7 +123,7 @@ function islandora_solr_admin_settings(&$form_state) {
   }
 
   $form['dismax_allowed'] = array(
-    '#type' => 'checkboxes',
+    '#type' => 'hidden',
     '#value' => $dismax_allowed
   );
 
@@ -145,7 +145,15 @@ function islandora_solr_admin_settings(&$form_state) {
     '#default_value' => variable_get('islandora_solr_searchterms', 'dc.title ~ Title'),
     '#wysiwyg' => FALSE,
   );
-
+  $form['islandora_solr_snippet_field'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Snippet Field'),
+    '#default_value' => variable_get('islandora_solr_snippet_field', ''),
+    '#description' => t("If a match is found on this field, a snippet of text will be returned, with the search term highlighted.<br />
+      An optional friendly label may inserted using the following pattern <strong>dsm.Text ~ Full Text</strong><br />
+      <strong>Note:</strong><em> This feature is not supported by all display profiles.</em> "),
+    '#wysiwyg' => FALSE,
+  );
   $form['islandora_solr_search_block_facets'] = array(
     '#type' => 'textarea',
     '#title' => t('Facet Fields'),
