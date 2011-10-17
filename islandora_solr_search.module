@@ -111,7 +111,6 @@ function islandora_solr_search_block($op = 'list', $delta = 0, $edit = array()) 
         }
         elseif (!empty($solr_blocks[$delta]['form'])) {
           $block['content'] = drupal_get_form($solr_blocks[$delta]['form']);
-          var_dump('content');
         }
       }
 
